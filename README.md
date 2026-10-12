@@ -18,6 +18,21 @@
 
 ## ✨ What is this?
 
+### Latest release: 1.3.5
+
+[Download plugin.ariostv-1.3.5.zip](https://github.com/warpirobo/rclone-nexus-kodi/releases/tag/plugin.ariostv-1.3.5)
+
+Version 1.3.5 adds optional low-impact remote scans during playback. This mode is
+disabled by default. When enabled, scan processes use one logical Go CPU, one
+checker, provider-call limits and periodic yields. Kodi's heavier library indexing
+and artwork processing are deferred until playback stops. Playback-server buffer
+and cache settings are unchanged. Disable this mode if you experience interruptions.
+
+The provided base ZIP requires **rclone 1.75.0 or newer** and does not bundle the
+rclone executable. Configure/import a compatible local binary for the architecture
+of your Kodi application, not merely the physical CPU. The uploaded ZIP is the
+user-supplied 1.3.5 package; no device or functional tests were run for publication.
+
 **Rclone Nexus** is a Kodi video add-on that browses and streams content from `rclone` remotes — including `crypt`, `combine`, `union`, `alias`, and virtually any compatible cloud storage service. It can also generate incremental `.strm` libraries without downloading the media files to the device.
 
 Built to run smoothly on **Amazon Fire Stick, Onn, Google TV**, and any Android TV device — even older, resource-constrained models.
@@ -70,11 +85,11 @@ The add-on **does not include or download** the rclone binary itself — you nee
 
 Download the **armv7a** binary from rclone's official test builds:
 
-**➡️ [rclone-android-21-armv7a.gz](https://beta.rclone.org/v1.74.4/testbuilds/rclone-android-21-armv7a.gz)**
+**➡️ [rclone-android-21-armv7a.gz](https://beta.rclone.org/v1.75.0/testbuilds/rclone-android-21-armv7a.gz)**
 
 This architecture covers the vast majority of Android TV devices on the market, even ones with 64-bit CPUs — Fire OS and many third-party launchers still run in 32-bit compatibility mode.
 
-Other architectures available in the same repository ([see full folder](https://beta.rclone.org/v1.74.4/testbuilds/)):
+Other architectures available in the same repository ([see full folder](https://beta.rclone.org/v1.75.0/testbuilds/)):
 
 | Architecture | File | Typical devices |
 |---|---|---|

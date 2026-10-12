@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.ariostv" name="Rclone Nexus" version="1.3.1" provider-name="AriosTV">
+<addon id="plugin.ariostv" name="Rclone Nexus" version="1.3.5" provider-name="AriosTV">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
     </requires>
@@ -8,13 +8,13 @@
     </extension>
     <extension point="xbmc.service" library="service.py" start="startup"/>
     <extension point="xbmc.addon.metadata">
-        <summary lang="en_US">Browse, stream, and build STRM libraries from rclone remotes</summary>
-        <summary lang="en_GB">Browse, stream, and build STRM libraries from rclone remotes</summary>
-        <description lang="en_US">Browse crypt, combine, and other rclone remotes; stream through a local rclone server; and export folders as STRM files for the Kodi library. Includes incremental sync, new-content tracking, favorites, search, and bounded temporary storage.</description>
-        <description lang="en_GB">Browse crypt, combine, and other rclone remotes; stream through a local rclone server; and export folders as STRM files for the Kodi library. Includes incremental sync, new-content tracking, favorites, search, and bounded temporary storage.</description>
+        <summary lang="es_ES">Navega, reproduce y crea bibliotecas STRM desde remotes rclone</summary>
+        <summary lang="en_GB">Browse, stream and build STRM libraries from rclone remotes</summary>
+        <description lang="es_ES">Rclone Nexus permite navegar remotes crypt, combine y otros, reproducir mediante un servidor rclone local verificado y exportar carpetas como archivos STRM para la biblioteca de Kodi. La versión 1.3.5 permite opcionalmente sincronizar el remote durante la reproducción con límites de CPU y llamadas; la indexación pesada de Kodi espera hasta finalizar el video.</description>
+        <description lang="en_GB">Browse crypt, combine and other rclone remotes, stream through a verified local rclone server, and export folders as STRM files for the Kodi library. Version 1.3.5 optionally allows low-impact remote synchronization during playback while deferring Kodi's heavier indexing stage until playback stops.</description>
         <platform>android</platform>
         <license>GPL-3.0-or-later</license>
-        <news>1.3.1: Complete English (US) interface, documentation, diagnostics, and artwork translation. Added GitHub-ready build and validation files.</news>
+        <news>1.3.5: Adds optional low-impact remote scans during playback. Scanner rclone processes use one Go CPU and one checker with provider calls limited to two per second; Kodi indexing is deferred until playback stops. Disabled by default.</news>
         <assets>
             <icon>icon.png</icon>
             <fanart>fanart.jpg</fanart>

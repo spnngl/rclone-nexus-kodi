@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.5
+
+- Optional low-impact remote synchronization during playback, disabled by default.
+- Scan processes use one Go CPU, one checker, two provider requests per second and a burst of one.
+- Kodi library indexing and artwork updates are deferred until playback stops.
+- Existing playback-server buffer, cache and limits remain unchanged.
+- Includes the supplied 1.3.4 synchronization-recovery improvements and requires rclone 1.75.0 or newer.
+- Published from the user-provided 1.3.5 ZIP; no functional/device tests run for publication.
+
 ## 1.3.1
 
 - Translated the complete interface, settings, diagnostics, errors, documentation, and fanart to English (US).
