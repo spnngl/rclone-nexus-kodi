@@ -9,7 +9,7 @@
     <category label="30003">
         <setting id="rclone_path" label="30004" type="file" default="" />
         <setting id="rclone_install_dir" label="30005" type="folder" default="" />
-        <setting id="rclone_arch" label="30006" type="text" default="auto" />
+        <setting id="rclone_arch" label="30006" type="select" values="auto|armv7a|armv8a|x86|x64" default="auto" />
         <setting id="serve_port_start" label="30007" type="number" default="28980" />
         <setting id="serve_start_timeout" label="30008" type="number" default="30" />
         <setting id="server_idle_minutes" label="30009" type="number" default="20" />
@@ -17,7 +17,7 @@
     </category>
 
     <category label="30011">
-        <setting id="vfs_cache_mode" label="30012" type="text" default="off" />
+        <setting id="vfs_cache_mode" label="30012" type="select" values="off|minimal|writes|full" default="off" />
         <setting id="vfs_cache_max_size_mb" label="30013" type="number" default="128" />
         <setting id="buffer_size_mb" label="30014" type="number" default="8" />
         <setting id="read_chunk_size_mb" label="30015" type="number" default="16" />
