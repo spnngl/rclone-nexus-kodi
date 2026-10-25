@@ -26,6 +26,7 @@ sys.path.insert(0, os.path.join(ADDON_DIR, 'resources', 'lib'))
 
 from ariostv.rclone_backend import RcloneBackend, RcloneCancelled, cleanup_managed_servers  # noqa: E402
 from ariostv import library_manager as library  # noqa: E402
+from ariostv.i18n import tr  # noqa: E402
 
 _NOTICE_PATH_RE = re.compile(r'(?:NOTICE|INFO|DEBUG)\s*:\s*("(?:\\.|[^"\\])*")\s*:\s*\d+\s*$')
 _DEBUG_PATH_RE = re.compile(r'changeNotify:\s*relativePath="([^"]*)"')
@@ -100,7 +101,7 @@ def synchronize_entries(backend, entries, monitor, low_impact=False):
     failed = {}
     for entry in entries:
         if monitor.abortRequested():
-            raise RcloneCancelled('Kodi esta cerrando.')
+            raise RcloneCancelled(tr(30500))
         try:
             if hasattr(backend, 'set_scan_low_impact'):
                 backend.set_scan_low_impact(low_impact)
@@ -112,11 +113,11 @@ def synchronize_entries(backend, entries, monitor, low_impact=False):
             raise
         except library.LibraryBusy as exc:
             failed[entry.get('id')] = str(exc)
-            xbmc.log('[Rclone Nexus/service] Biblioteca ocupada; se reintentara: %s' % entry.get('name'), xbmc.LOGINFO)
+            xbmc.log('[Rclone Nexus/service] Library busy; will retry: %s' % entry.get('name'), xbmc.LOGINFO)
         except Exception as exc:
             library.mark_export_error(entry, exc)
             failed[entry.get('id')] = str(exc)
-            xbmc.log('[Rclone Nexus/service] Error sincronizando %s: %s' % (entry.get('name'), exc), xbmc.LOGERROR)
+            xbmc.log('[Rclone Nexus/service] Error syncing %s: %s' % (entry.get('name'), exc), xbmc.LOGERROR)
         finally:
             if hasattr(backend, 'set_scan_low_impact'):
                 backend.set_scan_low_impact(False)
@@ -165,7 +166,7 @@ class ChangeWatcher:
                     self.on_change(self.remote, changed_path)
         except Exception as exc:
             if not self.stop_event.is_set():
-                xbmc.log('[Rclone Nexus/service] Watcher %s fallo: %s' % (self.remote, exc), xbmc.LOGWARNING)
+                xbmc.log('[Rclone Nexus/service] Watcher %s failed: %s' % (self.remote, exc), xbmc.LOGWARNING)
 
     def alive(self):
         return bool(
@@ -217,7 +218,7 @@ class SmartSyncManager:
                 'dirty': self.dirty,
             })
         except Exception as exc:
-            xbmc.log('[Rclone Nexus/service] No se pudo persistir la cola: %s' % exc, xbmc.LOGERROR)
+            xbmc.log('[Rclone Nexus/service] Could not persist the queue: %s' % exc, xbmc.LOGERROR)
 
     def mark_change(self, remote, changed_path):
         now = time.time()
@@ -244,7 +245,7 @@ class SmartSyncManager:
                 self.backend.clear_list_cache()
             except Exception:
                 pass
-            xbmc.log('[Rclone Nexus/service] Cambio detectado en %s:%s' % (remote, changed_path), xbmc.LOGINFO)
+            xbmc.log('[Rclone Nexus/service] Change detected in %s:%s' % (remote, changed_path), xbmc.LOGINFO)
 
     def refresh_watchers(self, force=False):
         now = time.time()
@@ -285,9 +286,9 @@ class SmartSyncManager:
                 watcher = ChangeWatcher(self.backend, remote, poll_minutes, self.mark_change)
                 watcher.start()
                 self.watchers[remote] = watcher
-                xbmc.log('[Rclone Nexus/service] ChangeNotify activo para %s (cada %d min)' % (remote, poll_minutes), xbmc.LOGINFO)
+                xbmc.log('[Rclone Nexus/service] ChangeNotify active for %s (every %d min)' % (remote, poll_minutes), xbmc.LOGINFO)
             except Exception as exc:
-                xbmc.log('[Rclone Nexus/service] No se pudo iniciar ChangeNotify para %s: %s' % (remote, exc), xbmc.LOGWARNING)
+                xbmc.log('[Rclone Nexus/service] Could not start ChangeNotify for %s: %s' % (remote, exc), xbmc.LOGWARNING)
 
     def due_dirty_entries(self):
         now = time.time()
@@ -403,11 +404,11 @@ def main():
                             manager = SmartSyncManager(backend)
                             manager.refresh_watchers(force=True)
                             active_backend_identity = current_identity
-                            xbmc.log('[Rclone Nexus/service] Backend automatico listo.', xbmc.LOGINFO)
+                            xbmc.log('[Rclone Nexus/service] Automatic backend ready.', xbmc.LOGINFO)
                         except Exception as exc:
-                            xbmc.log('[Rclone Nexus/service] Backend no disponible; se reintentara: %s' % exc, xbmc.LOGWARNING)
+                            xbmc.log('[Rclone Nexus/service] Backend unavailable; will retry: %s' % exc, xbmc.LOGWARNING)
                     else:
-                        xbmc.log('[Rclone Nexus/service] rclone.conf aun no esta disponible; se reintentara.', xbmc.LOGWARNING)
+                        xbmc.log('[Rclone Nexus/service] rclone.conf not available yet; will retry.', xbmc.LOGWARNING)
                 next_backend_refresh = now + (300 if backend is None else 60)
 
             if not playing:
@@ -415,11 +416,11 @@ def main():
                 try:
                     cleanup_managed_servers(max_idle_seconds=idle_minutes * 60)
                 except Exception as exc:
-                    xbmc.log('[Rclone Nexus/service] Error limpiando servidores: %s' % exc, xbmc.LOGWARNING)
+                    xbmc.log('[Rclone Nexus/service] Error cleaning up servers: %s' % exc, xbmc.LOGWARNING)
                 try:
                     library.process_pending_library_update()
                 except Exception as exc:
-                    xbmc.log('[Rclone Nexus/service] No se pudo procesar la actualizacion Kodi pendiente: %s' % exc, xbmc.LOGWARNING)
+                    xbmc.log('[Rclone Nexus/service] Could not process the pending Kodi library update: %s' % exc, xbmc.LOGWARNING)
 
             if now >= next_storage_cleanup:
                 try:
@@ -427,7 +428,7 @@ def main():
                         backend.cleanup_storage(automatic=True)
                     library.cleanup_library_storage()
                 except Exception as exc:
-                    xbmc.log('[Rclone Nexus/service] Error limpiando almacenamiento: %s' % exc, xbmc.LOGWARNING)
+                    xbmc.log('[Rclone Nexus/service] Error cleaning up storage: %s' % exc, xbmc.LOGWARNING)
                 next_storage_cleanup = now + 6 * 3600
 
             if manager:
@@ -470,7 +471,7 @@ def main():
         try:
             cleanup_managed_servers(force=True)
         except Exception as exc:
-            xbmc.log('[Rclone Nexus/service] Error cerrando servidores: %s' % exc, xbmc.LOGWARNING)
+            xbmc.log('[Rclone Nexus/service] Error shutting down servers: %s' % exc, xbmc.LOGWARNING)
 
 
 if __name__ == '__main__':

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.6
+
+- The interface, settings, dialogs, notifications and error messages now follow the Kodi interface language instead of being hardcoded in Spanish.
+- Added English (`en_gb`, fallback) and Spanish (`es_es`) language catalogues under `resources/language/`, shared with the `en_au`, `en_nz`, `en_us`, `es_ar` and `es_mx` variants.
+- Fixed progress dialogs passing extra text lines, which Kodi 19 and later reject, when creating, syncing or searching libraries.
+- Log messages and the diagnostic report are always in English.
+- `scripts/validate.py` checks that every string ID used in code and settings exists in every catalogue, that no ID is unused, and that translations keep the same placeholders.
+
 ## 1.3.5
 
 - Optional low-impact remote synchronization during playback, disabled by default.

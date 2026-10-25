@@ -1,4 +1,4 @@
-"""Rclone Nexus 1.3.5 - Kodi video addon for local rclone remotes."""
+"""Rclone Nexus 1.3.6 - Kodi video addon for local rclone remotes."""
 
 import configparser
 import datetime
@@ -25,6 +25,7 @@ from ariostv.rclone_backend import (
     cleanup_managed_servers, MIN_RCLONE_VERSION_TEXT,
 )
 from ariostv import library_manager as library
+from ariostv.i18n import tr
 
 HANDLE = int(sys.argv[1])
 BASE_URL = sys.argv[0]
@@ -102,11 +103,7 @@ def require_conf_path(show_dialog=True):
     conf_path = get_conf_path()
     if not _exists(conf_path):
         if show_dialog:
-            xbmcgui.Dialog().ok(
-                ADDON_NAME,
-                'No se encontró rclone.conf.\n\n'
-                'Cópialo a /sdcard/Download/rclone.conf o configura su ruta en Ajustes.'
-            )
+            xbmcgui.Dialog().ok(ADDON_NAME, tr(30100))
         return ''
     return conf_path
 
@@ -221,8 +218,8 @@ def add_video_item(remote, item, prefix=''):
     except Exception:
         pass
     context = [
-        ('Reproducir', 'PlayMedia(%s)' % plugin_url(action='play', remote=remote, path=item.get('path', ''), name=name)),
-        ('Actualizar carpeta', 'Container.Refresh'),
+        (tr(30101), 'PlayMedia(%s)' % plugin_url(action='play', remote=remote, path=item.get('path', ''), name=name)),
+        (tr(30102), 'Container.Refresh'),
     ]
     li.addContextMenuItems(context)
     xbmcplugin.addDirectoryItem(
@@ -234,13 +231,13 @@ def add_video_item(remote, item, prefix=''):
 
 
 def folder_context(remote, path, name):
-    favorite_label = 'Quitar de favoritos' if library.is_favorite(remote, path) else 'Agregar a favoritos'
+    favorite_label = tr(30103) if library.is_favorite(remote, path) else tr(30104)
     return [
-        ('Exportar carpeta a biblioteca STRM', 'RunPlugin(%s)' % plugin_url(action='export_folder', remote=remote, path=path, name=name)),
-        ('Buscar contenido nuevo aquí', 'RunPlugin(%s)' % plugin_url(action='scan_new', remote=remote, path=path, name=name)),
-        ('Buscar videos aquí', 'Container.Update(%s)' % plugin_url(action='search', remote=remote, path=path)),
+        (tr(30105), 'RunPlugin(%s)' % plugin_url(action='export_folder', remote=remote, path=path, name=name)),
+        (tr(30106), 'RunPlugin(%s)' % plugin_url(action='scan_new', remote=remote, path=path, name=name)),
+        (tr(30107), 'Container.Update(%s)' % plugin_url(action='search', remote=remote, path=path)),
         (favorite_label, 'RunPlugin(%s)' % plugin_url(action='toggle_favorite', remote=remote, path=path, name=name)),
-        ('Actualizar esta carpeta', 'RunPlugin(%s)' % plugin_url(action='refresh', remote=remote, path=path)),
+        (tr(30108), 'RunPlugin(%s)' % plugin_url(action='refresh', remote=remote, path=path)),
     ]
 
 
@@ -249,17 +246,17 @@ def show_root():
     set_category(ADDON_NAME)
     conf_path = require_conf_path(show_dialog=False)
     if not conf_path:
-        add_action('[COLOR orange]Falta rclone.conf — abrir Ajustes[/COLOR]', build_url(action='settings'))
-        add_folder('Herramientas y diagnóstico', build_url(action='tools'), 'DefaultAddonProgram.png')
+        add_action('[COLOR orange]%s[/COLOR]' % tr(30109), build_url(action='settings'))
+        add_folder(tr(30110), build_url(action='tools'), 'DefaultAddonProgram.png')
         xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
         return
 
     recent_count = len(library.get_recent_items())
     export_count = len(library.get_exports())
     favorite_count = len(library.load_favorites())
-    add_folder('Bibliotecas STRM (%d)' % export_count, build_url(action='libraries'), 'DefaultVideoPlaylists.png')
-    add_folder('Contenido nuevo (%d)' % recent_count, build_url(action='new_content'), 'DefaultRecentlyAddedMovies.png')
-    add_folder('Favoritos (%d)' % favorite_count, build_url(action='favorites'), 'DefaultFavourites.png')
+    add_folder(tr(30111, count=export_count), build_url(action='libraries'), 'DefaultVideoPlaylists.png')
+    add_folder(tr(30112, count=recent_count), build_url(action='new_content'), 'DefaultRecentlyAddedMovies.png')
+    add_folder(tr(30113, count=favorite_count), build_url(action='favorites'), 'DefaultFavourites.png')
 
     selected = (ADDON.getSetting('remote_name') or '').strip()
     remotes = preferred_remotes(conf_path)
@@ -275,7 +272,7 @@ def show_root():
             'DefaultNetwork.png',
             context=folder_context(name, '', name),
         )
-    add_folder('Herramientas y ajustes', build_url(action='tools'), 'DefaultAddonProgram.png')
+    add_folder(tr(30114), build_url(action='tools'), 'DefaultAddonProgram.png')
     xbmcplugin.addSortMethod(HANDLE, xbmcplugin.SORT_METHOD_NONE)
     xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
 
@@ -288,11 +285,8 @@ def show_folder(remote, path=''):
             return
         items = backend.list_folder(remote, path or '')
     except Exception as exc:
-        xbmc.log('[Rclone Nexus] Error listando: %s' % exc, xbmc.LOGERROR)
-        xbmcgui.Dialog().ok(
-            ADDON_NAME,
-            'Error al listar con rclone:\n%s\n\nRevisa el remote, rclone.conf y la ruta del binario.' % exc
-        )
+        xbmc.log('[Rclone Nexus] Listing error: %s' % exc, xbmc.LOGERROR)
+        xbmcgui.Dialog().ok(ADDON_NAME, tr(30115, error=exc))
         xbmcplugin.endOfDirectory(HANDLE, succeeded=False, cacheToDisc=False)
         return
 
@@ -321,7 +315,7 @@ def show_folder(remote, path=''):
             added += 1
 
     if added == 0:
-        add_action('[Sin carpetas ni videos compatibles]', build_url(action='refresh', remote=remote, path=path), 'DefaultFolder.png')
+        add_action('[%s]' % tr(30116), build_url(action='refresh', remote=remote, path=path), 'DefaultFolder.png')
 
     xbmcplugin.addSortMethod(HANDLE, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
     try:
@@ -340,12 +334,8 @@ def play_item(remote, path, name):
             return
         url = backend.playback_url(remote, path)
     except Exception as exc:
-        xbmc.log('[Rclone Nexus] Error preparando reproduccion: %s' % exc, xbmc.LOGERROR)
-        xbmcgui.Dialog().ok(
-            ADDON_NAME,
-            'Error preparando la reproduccion con rclone:\n%s\n\n'
-            'Revisa permisos de ejecucion, arquitectura, version de rclone y el remote.' % exc
-        )
+        xbmc.log('[Rclone Nexus] Playback preparation error: %s' % exc, xbmc.LOGERROR)
+        xbmcgui.Dialog().ok(ADDON_NAME, tr(30117, error=exc))
         xbmcplugin.setResolvedUrl(HANDLE, False, xbmcgui.ListItem())
         return
 
@@ -361,7 +351,7 @@ def play_item(remote, path, name):
         li.setInfo('video', {'title': name or os.path.basename(path)})
     except Exception:
         pass
-    xbmc.log('[Rclone Nexus] Reproduciendo %s:%s mediante servidor local verificado.' % (remote, path), xbmc.LOGINFO)
+    xbmc.log('[Rclone Nexus] Playing %s:%s via verified local server.' % (remote, path), xbmc.LOGINFO)
     xbmcplugin.setResolvedUrl(HANDLE, True, li)
 
 
@@ -369,16 +359,16 @@ def play_item(remote, path, name):
 
 def show_tools():
     xbmcplugin.setContent(HANDLE, 'files')
-    set_category('%s · Herramientas' % ADDON_NAME)
+    set_category('%s · %s' % (ADDON_NAME, tr(30118)))
     items = [
-        ('Verificar rclone local (minimo %s)' % MIN_RCLONE_VERSION_TEXT, 'check_rclone'),
-        ('Importar rclone desde Download', 'import_rclone'),
-        ('Sincronizar todas las bibliotecas STRM', 'sync_all'),
-        ('Limpiar almacenamiento temporal', 'cleanup_storage'),
-        ('Limpiar cache de navegacion', 'clear_cache'),
-        ('Detener servidores rclone', 'stop_rclone'),
-        ('Diagnostico Android/rclone', 'diagnostic'),
-        ('Ajustes', 'settings'),
+        (tr(30119, version=MIN_RCLONE_VERSION_TEXT), 'check_rclone'),
+        (tr(30120), 'import_rclone'),
+        (tr(30121), 'sync_all'),
+        (tr(30122), 'cleanup_storage'),
+        (tr(30123), 'clear_cache'),
+        (tr(30124), 'stop_rclone'),
+        (tr(30125), 'diagnostic'),
+        (tr(30126), 'settings'),
     ]
     for label, action in items:
         add_action(label, build_url(action=action))
@@ -388,50 +378,50 @@ def show_tools():
 
 def show_libraries():
     xbmcplugin.setContent(HANDLE, 'files')
-    set_category('%s · Bibliotecas STRM' % ADDON_NAME)
+    set_category('%s · %s' % (ADDON_NAME, tr(30127)))
     exports = library.get_exports()
-    add_action('[Sincronizar todas]', build_url(action='sync_all'), 'DefaultAddonProgram.png')
+    add_action('[%s]' % tr(30128), build_url(action='sync_all'), 'DefaultAddonProgram.png')
     if not exports:
-        add_action('[Aún no hay carpetas exportadas. Abre una carpeta y usa el menú contextual.]', build_url(action='root'), 'DefaultFolder.png')
+        add_action('[%s]' % tr(30129), build_url(action='root'), 'DefaultFolder.png')
     for entry in exports:
         last_sync = entry.get('last_sync', 0)
-        last_text = datetime.datetime.fromtimestamp(last_sync).strftime('%Y-%m-%d %H:%M') if last_sync else 'nunca'
-        label = '%s  [COLOR gray](%d archivos · %s)[/COLOR]' % (
-            entry.get('name', 'Biblioteca'), int(entry.get('file_count', 0) or 0), last_text
+        last_text = datetime.datetime.fromtimestamp(last_sync).strftime('%Y-%m-%d %H:%M') if last_sync else tr(30130)
+        label = '%s  [COLOR gray](%s)[/COLOR]' % (
+            entry.get('name', tr(30131)), tr(30132, count=int(entry.get('file_count', 0) or 0), last_sync=last_text)
         )
         if entry.get('last_error'):
             label = '[COLOR red]⚠[/COLOR] ' + label
         context = [
-            ('Sincronizar ahora', 'RunPlugin(%s)' % plugin_url(action='sync_export', export_id=entry['id'])),
-            ('Abrir carpeta remota', 'Container.Update(%s)' % plugin_url(action='browse', remote=entry['remote'], path=entry.get('path', ''))),
-            ('Quitar registro', 'RunPlugin(%s)' % plugin_url(action='remove_export', export_id=entry['id'])),
-            ('Quitar registro y archivos STRM', 'RunPlugin(%s)' % plugin_url(action='remove_export', export_id=entry['id'], delete='1')),
+            (tr(30133), 'RunPlugin(%s)' % plugin_url(action='sync_export', export_id=entry['id'])),
+            (tr(30134), 'Container.Update(%s)' % plugin_url(action='browse', remote=entry['remote'], path=entry.get('path', ''))),
+            (tr(30135), 'RunPlugin(%s)' % plugin_url(action='remove_export', export_id=entry['id'])),
+            (tr(30136), 'RunPlugin(%s)' % plugin_url(action='remove_export', export_id=entry['id'], delete='1')),
         ]
         if entry.get('last_error'):
-            context.insert(0, ('Ver último error', 'RunPlugin(%s)' % plugin_url(action='export_error', export_id=entry['id'])))
+            context.insert(0, (tr(30137), 'RunPlugin(%s)' % plugin_url(action='export_error', export_id=entry['id'])))
         add_folder(label, build_url(action='browse', remote=entry['remote'], path=entry.get('path', '')), 'DefaultVideoPlaylists.png', context=context)
     xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
 
 
 def show_new_content():
     xbmcplugin.setContent(HANDLE, 'videos')
-    set_category('%s · Contenido nuevo' % ADDON_NAME)
+    set_category('%s · %s' % (ADDON_NAME, tr(30138)))
     items = library.get_recent_items()
-    add_action('[Limpiar lista de novedades]', build_url(action='clear_new'), 'DefaultAddonProgram.png')
+    add_action('[%s]' % tr(30139), build_url(action='clear_new'), 'DefaultAddonProgram.png')
     if not items:
-        add_action('[No hay novedades registradas]', build_url(action='libraries'), 'DefaultRecentlyAddedMovies.png')
+        add_action('[%s]' % tr(30140), build_url(action='libraries'), 'DefaultRecentlyAddedMovies.png')
     for item in items:
         date_text = datetime.datetime.fromtimestamp(int(item.get('discovered_at', 0) or 0)).strftime('%Y-%m-%d')
-        add_video_item(item.get('remote', ''), item, prefix='[COLOR lime]NUEVO[/COLOR] %s · ' % date_text)
+        add_video_item(item.get('remote', ''), item, prefix='[COLOR lime]%s[/COLOR] %s · ' % (tr(30141), date_text))
     xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
 
 
 def show_favorites():
     xbmcplugin.setContent(HANDLE, 'files')
-    set_category('%s · Favoritos' % ADDON_NAME)
+    set_category('%s · %s' % (ADDON_NAME, tr(30142)))
     favorites = library.load_favorites()
     if not favorites:
-        add_action('[No hay favoritos]', build_url(action='root'), 'DefaultFavourites.png')
+        add_action('[%s]' % tr(30143), build_url(action='root'), 'DefaultFavourites.png')
     for item in favorites:
         remote = item.get('remote', '')
         path = item.get('path', '')
@@ -443,9 +433,9 @@ def show_favorites():
 
 
 def export_folder_action(remote, path, name):
-    choices = ['Peliculas', 'Series de TV', 'Videos generales']
+    choices = [tr(30144), tr(30145), tr(30146)]
     media_values = ['movies', 'tvshows', 'videos']
-    selected = xbmcgui.Dialog().select('Tipo de contenido para Kodi', choices)
+    selected = xbmcgui.Dialog().select(tr(30147), choices)
     if selected < 0:
         xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
         return
@@ -453,14 +443,14 @@ def export_folder_action(remote, path, name):
     folder_name = library.sanitize_component(name or os.path.basename(path.rstrip('/')) or remote)
     destination = os.path.join(destination_root, folder_name)
     progress = xbmcgui.DialogProgress()
-    progress.create(ADDON_NAME, 'Preparando biblioteca STRM...', folder_name)
+    progress.create(ADDON_NAME, '%s\n%s' % (tr(30148), folder_name))
     entry = None
     try:
         entry = library.create_export(remote, path, name or folder_name, media_values[selected], destination)
-        progress.update(5, 'Escaneando el remote con memoria limitada...', folder_name)
+        progress.update(5, '%s\n%s' % (tr(30149), folder_name))
         backend = get_backend()
         result = library.sync_export(backend, entry, abort_callback=progress.iscanceled)
-        progress.update(90, 'Registrando la fuente en Kodi...', result['destination'])
+        progress.update(90, '%s\n%s' % (tr(30150), result['destination']))
         source_added = library.register_kodi_video_source(result['entry'])
         if _setting_bool('auto_update_kodi_library', True):
             library.request_library_update(result['destination'])
@@ -469,23 +459,17 @@ def export_folder_action(remote, path, name):
             try:
                 library.remove_export(entry.get('id'), delete_files=True)
             except Exception as cleanup_exc:
-                xbmc.log('[Rclone Nexus] No se pudo revertir una exportacion cancelada: %s' % cleanup_exc, xbmc.LOGWARNING)
-        notify('Exportacion cancelada; no se modifico la biblioteca de Kodi.')
+                xbmc.log('[Rclone Nexus] Could not roll back a cancelled export: %s' % cleanup_exc, xbmc.LOGWARNING)
+        notify(tr(30151))
     except Exception as exc:
         if entry:
             library.mark_export_error(entry, exc)
-        xbmcgui.Dialog().ok(ADDON_NAME, 'No se pudo exportar la carpeta:\n%s' % exc)
+        xbmcgui.Dialog().ok(ADDON_NAME, tr(30152, error=exc))
     else:
-        message = (
-            'Biblioteca STRM creada.\n\n'
-            'Archivos: %d\nDestino: %s\n\n'
-            '%s'
-        ) % (
-            result['total'], result['destination'],
-            'La fuente fue agregada a Kodi. En Videos > Archivos, manten pulsada la fuente y selecciona "Establecer contenido" para elegir el scraper.'
-            if source_added else
-            'La fuente ya existia en Kodi. La actualizacion de biblioteca fue solicitada.'
-        )
+        if source_added:
+            message = tr(30153, total=result['total'], destination=result['destination'])
+        else:
+            message = tr(30154, total=result['total'], destination=result['destination'])
         xbmcgui.Dialog().ok(ADDON_NAME, message)
     finally:
         try:
@@ -502,22 +486,22 @@ def export_folder_action(remote, path, name):
 def sync_export_action(entry_id):
     entry = library.find_export(entry_id)
     if not entry:
-        notify('Biblioteca no encontrada', icon=xbmcgui.NOTIFICATION_ERROR)
+        notify(tr(30155), icon=xbmcgui.NOTIFICATION_ERROR)
         xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
         return
     progress = xbmcgui.DialogProgress()
-    progress.create(ADDON_NAME, 'Sincronizando biblioteca STRM...', entry.get('name', 'Biblioteca'))
+    progress.create(ADDON_NAME, '%s\n%s' % (tr(30156), entry.get('name', tr(30131))))
     try:
         result = library.sync_export(get_backend(), entry, abort_callback=progress.iscanceled)
-        progress.update(100, 'Sincronizacion terminada')
+        progress.update(100, tr(30157))
         if _setting_bool('auto_update_kodi_library', True) and (result['added'] or result['removed'] or result['updated']):
             library.request_library_update(result['destination'])
-        notify('Anadidos: %d · Eliminados: %d · Total: %d' % (result['added'], result['removed'], result['total']))
+        notify(tr(30158, added=result['added'], removed=result['removed'], total=result['total']))
     except RcloneCancelled:
-        notify('Sincronizacion cancelada de forma segura.')
+        notify(tr(30159))
     except Exception as exc:
         library.mark_export_error(entry, exc)
-        xbmcgui.Dialog().ok(ADDON_NAME, 'Error al sincronizar:\n%s' % exc)
+        xbmcgui.Dialog().ok(ADDON_NAME, tr(30160, error=exc))
     finally:
         try:
             progress.close()
@@ -529,13 +513,13 @@ def sync_export_action(entry_id):
 def export_error_action(entry_id):
     entry = library.find_export(entry_id)
     if not entry or not entry.get('last_error'):
-        notify('No hay un error registrado para esta biblioteca')
+        notify(tr(30161))
     else:
         attempted = int(entry.get('last_attempt') or 0)
-        attempted_text = datetime.datetime.fromtimestamp(attempted).strftime('%Y-%m-%d %H:%M:%S') if attempted else 'desconocido'
+        attempted_text = datetime.datetime.fromtimestamp(attempted).strftime('%Y-%m-%d %H:%M:%S') if attempted else tr(30162)
         xbmcgui.Dialog().textviewer(
-            '%s · Último error' % entry.get('name', 'Biblioteca'),
-            'Último intento: %s\n\n%s' % (attempted_text, entry.get('last_error')),
+            '%s · %s' % (entry.get('name', tr(30131)), tr(30163)),
+            tr(30164, time=attempted_text, error=entry.get('last_error')),
         )
     xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
 
@@ -547,18 +531,18 @@ def export_error_action(entry_id):
 def sync_all_action():
     entries = library.get_exports()
     if not entries:
-        notify('No hay bibliotecas STRM configuradas')
+        notify(tr(30165))
         xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
         return
     progress = xbmcgui.DialogProgress()
-    progress.create(ADDON_NAME, 'Sincronizando bibliotecas STRM...')
+    progress.create(ADDON_NAME, tr(30166))
     totals = {'added': 0, 'removed': 0, 'errors': 0, 'files': 0}
     canceled = False
     for index, entry in enumerate(entries):
         if progress.iscanceled():
             canceled = True
             break
-        progress.update(int(index * 100 / max(1, len(entries))), entry.get('name', 'Biblioteca'))
+        progress.update(int(index * 100 / max(1, len(entries))), entry.get('name', tr(30131)))
         try:
             result = library.sync_export(get_backend(), entry, abort_callback=progress.iscanceled)
             totals['added'] += result['added']
@@ -571,17 +555,15 @@ def sync_all_action():
             totals['errors'] += 1
             library.mark_export_error(entry, exc)
     if not canceled:
-        progress.update(100, 'Finalizado')
+        progress.update(100, tr(30167))
     progress.close()
     if _setting_bool('auto_update_kodi_library', True) and (totals['added'] or totals['removed']):
         library.request_library_update()
-    status = 'Sincronizacion cancelada de forma segura.' if canceled else 'Sincronizacion finalizada.'
-    xbmcgui.Dialog().ok(
-        ADDON_NAME,
-        '%s\n\nNuevos: %d\nEliminados: %d\nArchivos registrados: %d\nErrores: %d' % (
-            status, totals['added'], totals['removed'], totals['files'], totals['errors']
-        )
-    )
+    if canceled:
+        summary = tr(30168, added=totals['added'], removed=totals['removed'], files=totals['files'], errors=totals['errors'])
+    else:
+        summary = tr(30169, added=totals['added'], removed=totals['removed'], files=totals['files'], errors=totals['errors'])
+    xbmcgui.Dialog().ok(ADDON_NAME, summary)
     xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
 
 
@@ -591,18 +573,18 @@ def sync_all_action():
 
 def scan_new_action(remote, path, name):
     progress = xbmcgui.DialogProgress()
-    progress.create(ADDON_NAME, 'Buscando contenido nuevo...', name or path or remote)
+    progress.create(ADDON_NAME, '%s\n%s' % (tr(30170), name or path or remote))
     try:
         result = library.scan_new_content(get_backend(), remote, path, abort_callback=progress.iscanceled)
     except RcloneCancelled:
-        notify('Revision cancelada; se conservo la referencia anterior.')
+        notify(tr(30171))
     except Exception as exc:
-        xbmcgui.Dialog().ok(ADDON_NAME, 'No se pudo revisar contenido nuevo:\n%s' % exc)
+        xbmcgui.Dialog().ok(ADDON_NAME, tr(30172, error=exc))
     else:
         if result['first_scan']:
-            text_value = 'Se creo una referencia inicial con %d videos. En la proxima revision solo se mostraran los archivos nuevos.' % result['total']
+            text_value = tr(30173, total=result['total'])
         else:
-            text_value = 'Nuevos: %d\nEliminados desde la fuente: %d\nTotal actual: %d' % (result['added'], result['removed'], result['total'])
+            text_value = tr(30174, added=result['added'], removed=result['removed'], total=result['total'])
         xbmcgui.Dialog().ok(ADDON_NAME, text_value)
     finally:
         try:
@@ -617,20 +599,20 @@ def scan_new_action(remote, path, name):
 
 
 def search_action(remote, path):
-    query = xbmcgui.Dialog().input('Buscar videos en %s' % (path or remote), type=xbmcgui.INPUT_ALPHANUM)
+    query = xbmcgui.Dialog().input(tr(30175, location=path or remote), type=xbmcgui.INPUT_ALPHANUM)
     if not query:
         xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
         return
     progress = xbmcgui.DialogProgress()
-    progress.create(ADDON_NAME, 'Buscando videos...', query)
+    progress.create(ADDON_NAME, '%s\n%s' % (tr(30176), query))
     try:
         items = get_backend().search_videos(remote, path, query, abort_callback=progress.iscanceled)
     except RcloneCancelled:
-        notify('Busqueda cancelada.')
+        notify(tr(30177))
         xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
         return
     except Exception as exc:
-        xbmcgui.Dialog().ok(ADDON_NAME, 'Error en la busqueda:\n%s' % exc)
+        xbmcgui.Dialog().ok(ADDON_NAME, tr(30178, error=exc))
         xbmcplugin.endOfDirectory(HANDLE, succeeded=False, cacheToDisc=False)
         return
     finally:
@@ -639,9 +621,9 @@ def search_action(remote, path):
         except Exception:
             pass
     xbmcplugin.setContent(HANDLE, 'videos')
-    set_category('Resultados: %s' % query)
+    set_category(tr(30179, query=query))
     if not items:
-        add_action('[Sin resultados]', build_url(action='browse', remote=remote, path=path), 'DefaultVideo.png')
+        add_action('[%s]' % tr(30180), build_url(action='browse', remote=remote, path=path), 'DefaultVideo.png')
     for item in items:
         add_video_item(remote, item)
     xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
@@ -653,16 +635,16 @@ def refresh_action(remote, path):
     try:
         backend = get_backend()
         backend.invalidate_list_cache(remote, path)
-        notify('Carpeta actualizada')
+        notify(tr(30181))
     except Exception as exc:
-        notify('No se pudo actualizar: %s' % exc, icon=xbmcgui.NOTIFICATION_ERROR)
+        notify(tr(30182, error=exc), icon=xbmcgui.NOTIFICATION_ERROR)
     xbmc.executebuiltin('Container.Refresh')
     xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
 
 
 def toggle_favorite_action(remote, path, name):
     added = library.toggle_favorite(remote, path, name)
-    notify('Agregado a favoritos' if added else 'Quitado de favoritos')
+    notify(tr(30183) if added else tr(30184))
     xbmc.executebuiltin('Container.Refresh')
     xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
 
@@ -671,20 +653,21 @@ def toggle_favorite_action(remote, path, name):
 def remove_export_action(entry_id, delete_files=False):
     entry = library.find_export(entry_id)
     if not entry:
-        notify('Biblioteca no encontrada')
+        notify(tr(30155))
     else:
-        question = '¿Quitar “%s”?' % entry.get('name', 'Biblioteca')
         if delete_files:
-            question += '\n\nTambien se eliminaran exclusivamente los archivos de la carpeta marcada por Rclone Nexus.'
+            question = tr(30186, name=entry.get('name', tr(30131)))
+        else:
+            question = tr(30185, name=entry.get('name', tr(30131)))
         if xbmcgui.Dialog().yesno(ADDON_NAME, question):
             try:
                 removed = library.remove_export(entry_id, delete_files=delete_files)
                 if removed:
                     library.unregister_kodi_video_source(removed)
             except Exception as exc:
-                xbmcgui.Dialog().ok(ADDON_NAME, 'No se elimino la biblioteca:\n%s' % exc)
+                xbmcgui.Dialog().ok(ADDON_NAME, tr(30187, error=exc))
             else:
-                notify('Biblioteca eliminada')
+                notify(tr(30188))
                 xbmc.executebuiltin('Container.Refresh')
     xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
 
@@ -696,9 +679,7 @@ def check_rclone_action():
         path = find_rclone(allow_download=False)
         if not path:
             raise RcloneError(
-                'No se encontro un binario compatible.\n\nArquitectura detectada: %s\nVersion minima: %s\n\n%s' % (
-                    detected_android_arch(), MIN_RCLONE_VERSION_TEXT, get_last_report()
-                )
+                tr(30189, arch=detected_android_arch(), version=MIN_RCLONE_VERSION_TEXT, report=get_last_report())
             )
         details = inspect_rclone(path)
         remotes = []
@@ -707,18 +688,18 @@ def check_rclone_action():
             remotes = backend.list_remotes()
         xbmcgui.Dialog().ok(
             ADDON_NAME,
-            'rclone esta listo.\n\nBinario: %s\nArquitectura Kodi: %s\nArquitectura rclone: %s\nVersion: %s\nSHA-256: %s\nRemotes: %s' % (
-                path, detected_android_arch(), details.get('arch') or '(no reportada)', details.get('version'),
-                details.get('sha256') or '(no calculado)', ', '.join(remotes[:12]) or '(sin rclone.conf o ninguno)'
+            tr(
+                30193,
+                path=path,
+                kodi_arch=detected_android_arch(),
+                rclone_arch=details.get('arch') or tr(30190),
+                version=details.get('version'),
+                sha256=details.get('sha256') or tr(30191),
+                remotes=', '.join(remotes[:12]) or tr(30192),
             )
         )
     except Exception as exc:
-        xbmcgui.Dialog().ok(
-            ADDON_NAME,
-            'rclone no esta listo:\n%s\n\nSe requiere rclone %s o superior. Puedes configurar una ruta directa o incluir el binario en resources/bin/android/<ABI>/rclone.' % (
-                exc, MIN_RCLONE_VERSION_TEXT
-            )
-        )
+        xbmcgui.Dialog().ok(ADDON_NAME, tr(30194, error=exc, version=MIN_RCLONE_VERSION_TEXT))
     xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
 
 
@@ -727,10 +708,10 @@ def import_rclone_action():
     try:
         path = import_manual_rclone()
         if not path:
-            raise RcloneError('No encontré rclone, rclone.gz o rclone.bin en la carpeta Download.')
-        xbmcgui.Dialog().ok(ADDON_NAME, 'rclone importado en:\n%s' % path)
+            raise RcloneError(tr(30195))
+        xbmcgui.Dialog().ok(ADDON_NAME, tr(30196, path=path))
     except Exception as exc:
-        xbmcgui.Dialog().ok(ADDON_NAME, 'No se pudo importar rclone:\n%s\n\n%s' % (exc, get_last_report()))
+        xbmcgui.Dialog().ok(ADDON_NAME, tr(30197, error=exc, report=get_last_report()))
     xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
 
 
@@ -744,26 +725,29 @@ def cleanup_storage_action():
         removed += backend.cleanup_storage(aggressive=True)
         after = backend.storage_usage()
     except Exception as exc:
-        xbmc.log('[Rclone Nexus] Limpieza temporal parcial: %s' % exc, xbmc.LOGWARNING)
+        xbmc.log('[Rclone Nexus] Partial temporary cleanup: %s' % exc, xbmc.LOGWARNING)
     try:
         removed += library.cleanup_library_storage()
         xbmcgui.Dialog().ok(
             ADDON_NAME,
-            'Limpieza completada.\n\nTemporales antes: %s\nLiberado: %s\nTemporales después: %s\n\nLos STRM activos nunca se eliminan con esta herramienta.' % (
-                library.format_bytes(before['total']), library.format_bytes(removed), library.format_bytes(after['total'])
+            tr(
+                30198,
+                before=library.format_bytes(before['total']),
+                freed=library.format_bytes(removed),
+                after=library.format_bytes(after['total']),
             )
         )
     except Exception as exc:
-        xbmcgui.Dialog().ok(ADDON_NAME, 'No se pudo completar la limpieza:\n%s' % exc)
+        xbmcgui.Dialog().ok(ADDON_NAME, tr(30199, error=exc))
     xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
 
 
 def clear_cache_action():
     try:
         count = get_backend().clear_list_cache()
-        notify('Caché de navegación eliminada: %d archivos' % count)
+        notify(tr(30200, count=count))
     except Exception as exc:
-        xbmcgui.Dialog().ok(ADDON_NAME, 'No se pudo limpiar la caché:\n%s' % exc)
+        xbmcgui.Dialog().ok(ADDON_NAME, tr(30201, error=exc))
     xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
 
 
@@ -771,9 +755,9 @@ def clear_cache_action():
 def stop_rclone_action():
     try:
         count = cleanup_managed_servers(force=True)
-        notify('Servidores detenidos: %d' % count)
+        notify(tr(30202, count=count))
     except Exception as exc:
-        xbmcgui.Dialog().ok(ADDON_NAME, 'No se pudieron detener los servidores:\n%s' % exc)
+        xbmcgui.Dialog().ok(ADDON_NAME, tr(30203, error=exc))
     xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
 
 
@@ -784,7 +768,7 @@ def diagnostic_action():
         backend = get_backend(show_dialog=False)
         if backend:
             usage = backend.storage_usage()
-            text += '\n\nUso temporal del addon:\n  Total: %s\n  VFS: %s\n  Listados: %s\n  Logs: %s' % (
+            text += '\n\nTemporary add-on storage:\n  Total: %s\n  VFS: %s\n  Listings: %s\n  Logs: %s' % (
                 library.format_bytes(usage['total']), library.format_bytes(usage['vfs_cache']),
                 library.format_bytes(usage['list_cache']), library.format_bytes(usage['logs'])
             )
@@ -792,19 +776,19 @@ def diagnostic_action():
         pass
     try:
         library_usage = library.library_storage_usage()
-        text += '\n\nBibliotecas locales:\n  Espacio real: %s\n  Contenido lógico: %s\n  Archivos: %d\n  STRM: %s\n  Manifiestos: %s\n  Descubrimiento: %s\n  Libre: %s' % (
+        text += '\n\nLocal libraries:\n  Allocated: %s\n  Logical content: %s\n  Files: %d\n  STRM: %s\n  Manifests: %s\n  Discovery: %s\n  Free: %s' % (
             library.format_bytes(library_usage['allocated']),
             library.format_bytes(library_usage['logical']),
             library_usage['files'],
             library.format_bytes(library_usage['strm']['allocated']),
             library.format_bytes(library_usage['manifests']['allocated']),
             library.format_bytes(library_usage['discovery']['allocated']),
-            library.format_bytes(library_usage['free']) if library_usage['free'] is not None else 'desconocido',
+            library.format_bytes(library_usage['free']) if library_usage['free'] is not None else 'unknown',
         )
     except Exception as exc:
-        text += '\n\nNo se pudo calcular el espacio de bibliotecas: %s' % exc
+        text += '\n\nCould not calculate library storage: %s' % exc
     try:
-        xbmcgui.Dialog().textviewer('%s · Diagnóstico' % ADDON_NAME, text)
+        xbmcgui.Dialog().textviewer('%s · %s' % (ADDON_NAME, tr(30204)), text)
     except Exception:
         xbmcgui.Dialog().ok(ADDON_NAME, text[:4000])
     xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
@@ -846,7 +830,7 @@ def main():
         remove_export_action(get_param('export_id'), get_param('delete') == '1')
     elif action == 'clear_new':
         library.clear_recent_items()
-        notify('Lista de novedades limpiada')
+        notify(tr(30205))
         xbmc.executebuiltin('Container.Refresh')
         xbmcplugin.endOfDirectory(HANDLE, cacheToDisc=False)
     elif action == 'settings':
@@ -865,7 +849,7 @@ def main():
     elif action == 'diagnostic':
         diagnostic_action()
     else:
-        xbmc.log('[Rclone Nexus] Acción desconocida: %s' % action, xbmc.LOGWARNING)
+        xbmc.log('[Rclone Nexus] Unknown action: %s' % action, xbmc.LOGWARNING)
         xbmcplugin.endOfDirectory(HANDLE, succeeded=False, cacheToDisc=False)
 
 

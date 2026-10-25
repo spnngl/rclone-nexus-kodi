@@ -1,0 +1,813 @@
+# Kodi Media Center language file
+# Addon Name: Rclone Nexus
+# Addon id: plugin.ariostv
+# Addon Provider: AriosTV
+msgid ""
+msgstr ""
+"Project-Id-Version: plugin.ariostv\n"
+"Report-Msgid-Bugs-To: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30000"
+msgid "Connection"
+msgstr "Conexión"
+
+msgctxt "#30001"
+msgid "Path to rclone.conf"
+msgstr "Ruta de rclone.conf"
+
+msgctxt "#30002"
+msgid "Preferred remote (shown first)"
+msgstr "Remote preferido (aparece primero)"
+
+msgctxt "#30003"
+msgid "Local rclone binary"
+msgstr "Binario rclone local"
+
+msgctxt "#30004"
+msgid "Direct path to the rclone binary (minimum 1.75.0)"
+msgstr "Ruta directa del binario rclone (mínimo 1.75.0)"
+
+msgctxt "#30005"
+msgid "Internal executable folder (optional)"
+msgstr "Carpeta interna ejecutable (opcional)"
+
+msgctxt "#30006"
+msgid "Architecture: auto, armv7a, armv8a, x86, or x64"
+msgstr "Arquitectura: auto, armv7a, armv8a, x86 o x64"
+
+msgctxt "#30007"
+msgid "Starting port for rclone serve"
+msgstr "Puerto inicial para rclone serve"
+
+msgctxt "#30008"
+msgid "Server startup timeout (seconds)"
+msgstr "Espera de arranque del servidor (segundos)"
+
+msgctxt "#30009"
+msgid "Stop server after inactivity (minutes)"
+msgstr "Detener servidor después de inactividad (minutos)"
+
+msgctxt "#30010"
+msgid "Safe advanced options (allow-listed)"
+msgstr "Opciones avanzadas seguras (lista permitida)"
+
+msgctxt "#30011"
+msgid "Playback and storage"
+msgstr "Reproducción y espacio"
+
+msgctxt "#30012"
+msgid "VFS mode: off, minimal, writes, or full"
+msgstr "Modo VFS: off, minimal, writes o full"
+
+msgctxt "#30013"
+msgid "Maximum VFS cache size (MB)"
+msgstr "Límite máximo de caché VFS (MB)"
+
+msgctxt "#30014"
+msgid "In-memory buffer per playback (MB)"
+msgstr "Búfer en memoria por reproducción (MB)"
+
+msgctxt "#30015"
+msgid "Initial read chunk size (MB)"
+msgstr "Bloque inicial de lectura (MB)"
+
+msgctxt "#30016"
+msgid "Read chunk size limit (MB)"
+msgstr "Límite de bloque de lectura (MB)"
+
+msgctxt "#30017"
+msgid "Parallel read streams (0 = adaptive reading)"
+msgstr "Flujos de lectura paralelos (0 = lectura adaptativa)"
+
+msgctxt "#30018"
+msgid "Browsing"
+msgstr "Navegación"
+
+msgctxt "#30019"
+msgid "Folder cache duration (minutes)"
+msgstr "Caché de carpetas (minutos)"
+
+msgctxt "#30020"
+msgid "Listing timeout (seconds)"
+msgstr "Tiempo máximo de listado (segundos)"
+
+msgctxt "#30021"
+msgid "Skip modification dates for faster browsing"
+msgstr "Omitir fecha al navegar para acelerar"
+
+msgctxt "#30022"
+msgid "STRM library"
+msgstr "Biblioteca STRM"
+
+msgctxt "#30023"
+msgid "Local folder for STRM libraries"
+msgstr "Carpeta local para bibliotecas STRM"
+
+msgctxt "#30024"
+msgid "Keep the original extension in the .strm filename"
+msgstr "Conservar extensión original dentro del nombre .strm"
+
+msgctxt "#30025"
+msgid "Delete STRM files when remote files disappear"
+msgstr "Eliminar STRM cuando el archivo remoto desaparezca"
+
+msgctxt "#30026"
+msgid "Use --fast-list (fewer API calls, more memory)"
+msgstr "Usar --fast-list (menos llamadas API, mayor memoria)"
+
+msgctxt "#30027"
+msgid "Allow an empty remote scan to delete existing STRM files"
+msgstr "Permitir que un escaneo remoto vacío elimine STRM existentes"
+
+msgctxt "#30028"
+msgid "Recursive scan timeout (seconds)"
+msgstr "Tiempo máximo de escaneo recursivo (segundos)"
+
+msgctxt "#30029"
+msgid "Minimum free space reserved for Kodi (MB)"
+msgstr "Espacio libre mínimo reservado para Kodi (MB)"
+
+msgctxt "#30030"
+msgid "Request a Kodi library update after changes"
+msgstr "Solicitar actualización de biblioteca Kodi después de cambios"
+
+msgctxt "#30031"
+msgid "Days to keep items in New content"
+msgstr "Días que se muestran como contenido nuevo"
+
+msgctxt "#30032"
+msgid "Automatic synchronization"
+msgstr "Sincronización automática"
+
+msgctxt "#30033"
+msgid "Check libraries automatically"
+msgstr "Revisar bibliotecas automáticamente"
+
+msgctxt "#30034"
+msgid "Allow remote scans during playback (low impact)"
+msgstr "Permitir escaneo remoto durante reproducción (bajo impacto)"
+
+msgctxt "#30035"
+msgid "Smart change detection (ChangeNotify when available)"
+msgstr "Detección inteligente de cambios (ChangeNotify cuando esté disponible)"
+
+msgctxt "#30036"
+msgid "ChangeNotify interval (minutes)"
+msgstr "Intervalo ChangeNotify (minutos)"
+
+msgctxt "#30037"
+msgid "Batch changes before syncing (seconds)"
+msgstr "Agrupar cambios antes de sincronizar (segundos)"
+
+msgctxt "#30038"
+msgid "Maximum concurrent ChangeNotify watchers"
+msgstr "Máximo de monitores ChangeNotify simultáneos"
+
+msgctxt "#30039"
+msgid "Safety full scan interval (hours)"
+msgstr "Escaneo completo de seguridad (horas)"
+
+msgctxt "#30040"
+msgid "Check interval (minimum 30 minutes)"
+msgstr "Intervalo de revisión (mínimo 30 minutos)"
+
+msgctxt "#30100"
+msgid "rclone.conf was not found.\n\nCopy it to /sdcard/Download/rclone.conf or set its path in Settings."
+msgstr "No se encontró rclone.conf.\n\nCópialo a /sdcard/Download/rclone.conf o configura su ruta en Ajustes."
+
+msgctxt "#30101"
+msgid "Play"
+msgstr "Reproducir"
+
+msgctxt "#30102"
+msgid "Refresh folder"
+msgstr "Actualizar carpeta"
+
+msgctxt "#30103"
+msgid "Remove from favorites"
+msgstr "Quitar de favoritos"
+
+msgctxt "#30104"
+msgid "Add to favorites"
+msgstr "Agregar a favoritos"
+
+msgctxt "#30105"
+msgid "Export folder to STRM library"
+msgstr "Exportar carpeta a biblioteca STRM"
+
+msgctxt "#30106"
+msgid "Check for new content here"
+msgstr "Buscar contenido nuevo aquí"
+
+msgctxt "#30107"
+msgid "Search videos here"
+msgstr "Buscar videos aquí"
+
+msgctxt "#30108"
+msgid "Refresh this folder"
+msgstr "Actualizar esta carpeta"
+
+msgctxt "#30109"
+msgid "Missing rclone.conf — open Settings"
+msgstr "Falta rclone.conf — abrir Ajustes"
+
+msgctxt "#30110"
+msgid "Tools and diagnostics"
+msgstr "Herramientas y diagnóstico"
+
+msgctxt "#30111"
+msgid "STRM libraries ({count})"
+msgstr "Bibliotecas STRM ({count})"
+
+msgctxt "#30112"
+msgid "New content ({count})"
+msgstr "Contenido nuevo ({count})"
+
+msgctxt "#30113"
+msgid "Favorites ({count})"
+msgstr "Favoritos ({count})"
+
+msgctxt "#30114"
+msgid "Tools and settings"
+msgstr "Herramientas y ajustes"
+
+msgctxt "#30115"
+msgid "rclone could not list this location:\n{error}\n\nCheck the remote, rclone.conf, and the binary path."
+msgstr "Error al listar con rclone:\n{error}\n\nRevisa el remote, rclone.conf y la ruta del binario."
+
+msgctxt "#30116"
+msgid "No compatible folders or videos"
+msgstr "Sin carpetas ni videos compatibles"
+
+msgctxt "#30117"
+msgid "rclone could not prepare playback:\n{error}\n\nCheck execute permissions, architecture, rclone version, and the remote."
+msgstr "Error preparando la reproducción con rclone:\n{error}\n\nRevisa permisos de ejecución, arquitectura, versión de rclone y el remote."
+
+msgctxt "#30118"
+msgid "Tools"
+msgstr "Herramientas"
+
+msgctxt "#30119"
+msgid "Check local rclone (minimum {version})"
+msgstr "Verificar rclone local (mínimo {version})"
+
+msgctxt "#30120"
+msgid "Import rclone from Download"
+msgstr "Importar rclone desde Download"
+
+msgctxt "#30121"
+msgid "Sync all STRM libraries"
+msgstr "Sincronizar todas las bibliotecas STRM"
+
+msgctxt "#30122"
+msgid "Clean temporary storage"
+msgstr "Limpiar almacenamiento temporal"
+
+msgctxt "#30123"
+msgid "Clear browsing cache"
+msgstr "Limpiar caché de navegación"
+
+msgctxt "#30124"
+msgid "Stop rclone servers"
+msgstr "Detener servidores rclone"
+
+msgctxt "#30125"
+msgid "Android/rclone diagnostics"
+msgstr "Diagnóstico Android/rclone"
+
+msgctxt "#30126"
+msgid "Settings"
+msgstr "Ajustes"
+
+msgctxt "#30127"
+msgid "STRM libraries"
+msgstr "Bibliotecas STRM"
+
+msgctxt "#30128"
+msgid "Sync all"
+msgstr "Sincronizar todas"
+
+msgctxt "#30129"
+msgid "No folders exported yet. Open a folder and use the context menu."
+msgstr "Aún no hay carpetas exportadas. Abre una carpeta y usa el menú contextual."
+
+msgctxt "#30130"
+msgid "never"
+msgstr "nunca"
+
+msgctxt "#30131"
+msgid "Library"
+msgstr "Biblioteca"
+
+msgctxt "#30132"
+msgid "{count} files · {last_sync}"
+msgstr "{count} archivos · {last_sync}"
+
+msgctxt "#30133"
+msgid "Sync now"
+msgstr "Sincronizar ahora"
+
+msgctxt "#30134"
+msgid "Open remote folder"
+msgstr "Abrir carpeta remota"
+
+msgctxt "#30135"
+msgid "Remove entry"
+msgstr "Quitar registro"
+
+msgctxt "#30136"
+msgid "Remove entry and STRM files"
+msgstr "Quitar registro y archivos STRM"
+
+msgctxt "#30137"
+msgid "View last error"
+msgstr "Ver último error"
+
+msgctxt "#30138"
+msgid "New content"
+msgstr "Contenido nuevo"
+
+msgctxt "#30139"
+msgid "Clear new-content list"
+msgstr "Limpiar lista de novedades"
+
+msgctxt "#30140"
+msgid "No new content is currently listed"
+msgstr "No hay novedades registradas"
+
+msgctxt "#30141"
+msgid "NEW"
+msgstr "NUEVO"
+
+msgctxt "#30142"
+msgid "Favorites"
+msgstr "Favoritos"
+
+msgctxt "#30143"
+msgid "No favorites"
+msgstr "No hay favoritos"
+
+msgctxt "#30144"
+msgid "Movies"
+msgstr "Películas"
+
+msgctxt "#30145"
+msgid "TV shows"
+msgstr "Series de TV"
+
+msgctxt "#30146"
+msgid "General videos"
+msgstr "Videos generales"
+
+msgctxt "#30147"
+msgid "Kodi content type"
+msgstr "Tipo de contenido para Kodi"
+
+msgctxt "#30148"
+msgid "Preparing STRM library..."
+msgstr "Preparando biblioteca STRM..."
+
+msgctxt "#30149"
+msgid "Scanning the remote with limited memory..."
+msgstr "Escaneando el remote con memoria limitada..."
+
+msgctxt "#30150"
+msgid "Registering the source in Kodi..."
+msgstr "Registrando la fuente en Kodi..."
+
+msgctxt "#30151"
+msgid "Export cancelled; the Kodi library was not modified."
+msgstr "Exportación cancelada; no se modificó la biblioteca de Kodi."
+
+msgctxt "#30152"
+msgid "The folder could not be exported:\n{error}"
+msgstr "No se pudo exportar la carpeta:\n{error}"
+
+msgctxt "#30153"
+msgid "STRM library created.\n\nFiles: {total}\nDestination: {destination}\n\nThe source was added to Kodi. In Videos > Files, open the source context menu and select “Set content” to choose the scraper."
+msgstr "Biblioteca STRM creada.\n\nArchivos: {total}\nDestino: {destination}\n\nLa fuente fue agregada a Kodi. En Videos > Archivos, mantén pulsada la fuente y selecciona “Establecer contenido” para elegir el scraper."
+
+msgctxt "#30154"
+msgid "STRM library created.\n\nFiles: {total}\nDestination: {destination}\n\nThe source already existed in Kodi. A library update was requested."
+msgstr "Biblioteca STRM creada.\n\nArchivos: {total}\nDestino: {destination}\n\nLa fuente ya existía en Kodi. La actualización de biblioteca fue solicitada."
+
+msgctxt "#30155"
+msgid "Library not found"
+msgstr "Biblioteca no encontrada"
+
+msgctxt "#30156"
+msgid "Syncing STRM library..."
+msgstr "Sincronizando biblioteca STRM..."
+
+msgctxt "#30157"
+msgid "Sync finished"
+msgstr "Sincronización terminada"
+
+msgctxt "#30158"
+msgid "Added: {added} · Removed: {removed} · Total: {total}"
+msgstr "Añadidos: {added} · Eliminados: {removed} · Total: {total}"
+
+msgctxt "#30159"
+msgid "Sync safely cancelled."
+msgstr "Sincronización cancelada de forma segura."
+
+msgctxt "#30160"
+msgid "Sync error:\n{error}"
+msgstr "Error al sincronizar:\n{error}"
+
+msgctxt "#30161"
+msgid "No error is recorded for this library"
+msgstr "No hay un error registrado para esta biblioteca"
+
+msgctxt "#30162"
+msgid "unknown"
+msgstr "desconocido"
+
+msgctxt "#30163"
+msgid "Last error"
+msgstr "Último error"
+
+msgctxt "#30164"
+msgid "Last attempt: {time}\n\n{error}"
+msgstr "Último intento: {time}\n\n{error}"
+
+msgctxt "#30165"
+msgid "No STRM libraries are configured"
+msgstr "No hay bibliotecas STRM configuradas"
+
+msgctxt "#30166"
+msgid "Syncing STRM libraries..."
+msgstr "Sincronizando bibliotecas STRM..."
+
+msgctxt "#30167"
+msgid "Finished"
+msgstr "Finalizado"
+
+msgctxt "#30168"
+msgid "Sync safely cancelled.\n\nNew: {added}\nRemoved: {removed}\nIndexed files: {files}\nErrors: {errors}"
+msgstr "Sincronización cancelada de forma segura.\n\nNuevos: {added}\nEliminados: {removed}\nArchivos registrados: {files}\nErrores: {errors}"
+
+msgctxt "#30169"
+msgid "Sync complete.\n\nNew: {added}\nRemoved: {removed}\nIndexed files: {files}\nErrors: {errors}"
+msgstr "Sincronización finalizada.\n\nNuevos: {added}\nEliminados: {removed}\nArchivos registrados: {files}\nErrores: {errors}"
+
+msgctxt "#30170"
+msgid "Checking for new content..."
+msgstr "Buscando contenido nuevo..."
+
+msgctxt "#30171"
+msgid "Check cancelled; the previous baseline was kept."
+msgstr "Revisión cancelada; se conservó la referencia anterior."
+
+msgctxt "#30172"
+msgid "New content could not be checked:\n{error}"
+msgstr "No se pudo revisar contenido nuevo:\n{error}"
+
+msgctxt "#30173"
+msgid "An initial baseline was created with {total} videos. Future checks will show only newly added files."
+msgstr "Se creó una referencia inicial con {total} videos. En la próxima revisión solo se mostrarán los archivos nuevos."
+
+msgctxt "#30174"
+msgid "New: {added}\nRemoved from source: {removed}\nCurrent total: {total}"
+msgstr "Nuevos: {added}\nEliminados desde la fuente: {removed}\nTotal actual: {total}"
+
+msgctxt "#30175"
+msgid "Search videos in {location}"
+msgstr "Buscar videos en {location}"
+
+msgctxt "#30176"
+msgid "Searching videos..."
+msgstr "Buscando videos..."
+
+msgctxt "#30177"
+msgid "Search cancelled."
+msgstr "Búsqueda cancelada."
+
+msgctxt "#30178"
+msgid "Search error:\n{error}"
+msgstr "Error en la búsqueda:\n{error}"
+
+msgctxt "#30179"
+msgid "Results: {query}"
+msgstr "Resultados: {query}"
+
+msgctxt "#30180"
+msgid "No results"
+msgstr "Sin resultados"
+
+msgctxt "#30181"
+msgid "Folder refreshed"
+msgstr "Carpeta actualizada"
+
+msgctxt "#30182"
+msgid "Could not refresh: {error}"
+msgstr "No se pudo actualizar: {error}"
+
+msgctxt "#30183"
+msgid "Added to favorites"
+msgstr "Agregado a favoritos"
+
+msgctxt "#30184"
+msgid "Removed from favorites"
+msgstr "Quitado de favoritos"
+
+msgctxt "#30185"
+msgid "Remove “{name}”?"
+msgstr "¿Quitar “{name}”?"
+
+msgctxt "#30186"
+msgid "Remove “{name}”?\n\nFiles in the folder marked by Rclone Nexus will also be deleted; nothing outside it is touched."
+msgstr "¿Quitar “{name}”?\n\nTambién se eliminarán exclusivamente los archivos de la carpeta marcada por Rclone Nexus."
+
+msgctxt "#30187"
+msgid "The library was not removed:\n{error}"
+msgstr "No se eliminó la biblioteca:\n{error}"
+
+msgctxt "#30188"
+msgid "Library removed"
+msgstr "Biblioteca eliminada"
+
+msgctxt "#30189"
+msgid "No compatible rclone binary was found.\n\nDetected architecture: {arch}\nMinimum version: {version}\n\n{report}"
+msgstr "No se encontró un binario compatible.\n\nArquitectura detectada: {arch}\nVersión mínima: {version}\n\n{report}"
+
+msgctxt "#30190"
+msgid "(not reported)"
+msgstr "(no reportada)"
+
+msgctxt "#30191"
+msgid "(not calculated)"
+msgstr "(no calculado)"
+
+msgctxt "#30192"
+msgid "(no rclone.conf or no remotes)"
+msgstr "(sin rclone.conf o ninguno)"
+
+msgctxt "#30193"
+msgid "rclone is ready.\n\nBinary: {path}\nKodi architecture: {kodi_arch}\nrclone architecture: {rclone_arch}\nVersion: {version}\nSHA-256: {sha256}\nRemotes: {remotes}"
+msgstr "rclone está listo.\n\nBinario: {path}\nArquitectura Kodi: {kodi_arch}\nArquitectura rclone: {rclone_arch}\nVersión: {version}\nSHA-256: {sha256}\nRemotes: {remotes}"
+
+msgctxt "#30194"
+msgid "rclone is not ready:\n{error}\n\nrclone {version} or later is required. Set a direct binary path or include the binary at resources/bin/android/<ABI>/rclone."
+msgstr "rclone no está listo:\n{error}\n\nSe requiere rclone {version} o superior. Puedes configurar una ruta directa o incluir el binario en resources/bin/android/<ABI>/rclone."
+
+msgctxt "#30195"
+msgid "rclone, rclone.gz, or rclone.bin was not found in the Download folder."
+msgstr "No encontré rclone, rclone.gz o rclone.bin en la carpeta Download."
+
+msgctxt "#30196"
+msgid "rclone imported to:\n{path}"
+msgstr "rclone importado en:\n{path}"
+
+msgctxt "#30197"
+msgid "rclone could not be imported:\n{error}\n\n{report}"
+msgstr "No se pudo importar rclone:\n{error}\n\n{report}"
+
+msgctxt "#30198"
+msgid "Cleanup complete.\n\nTemporary files before: {before}\nFreed: {freed}\nTemporary files after: {after}\n\nActive STRM files are never deleted by this tool."
+msgstr "Limpieza completada.\n\nTemporales antes: {before}\nLiberado: {freed}\nTemporales después: {after}\n\nLos STRM activos nunca se eliminan con esta herramienta."
+
+msgctxt "#30199"
+msgid "Cleanup could not be completed:\n{error}"
+msgstr "No se pudo completar la limpieza:\n{error}"
+
+msgctxt "#30200"
+msgid "Browsing cache cleared: {count} files"
+msgstr "Caché de navegación eliminada: {count} archivos"
+
+msgctxt "#30201"
+msgid "Cache could not be cleared:\n{error}"
+msgstr "No se pudo limpiar la caché:\n{error}"
+
+msgctxt "#30202"
+msgid "Servers stopped: {count}"
+msgstr "Servidores detenidos: {count}"
+
+msgctxt "#30203"
+msgid "Servers could not be stopped:\n{error}"
+msgstr "No se pudieron detener los servidores:\n{error}"
+
+msgctxt "#30204"
+msgid "Diagnostics"
+msgstr "Diagnóstico"
+
+msgctxt "#30205"
+msgid "New-content list cleared"
+msgstr "Lista de novedades limpiada"
+
+msgctxt "#30500"
+msgid "Kodi is shutting down."
+msgstr "Kodi se está cerrando."
+
+msgctxt "#30600"
+msgid "Unsafe library destination: {path}"
+msgstr "Destino de biblioteca inseguro: {path}"
+
+msgctxt "#30601"
+msgid "The library marker cannot be a symbolic link: {path}"
+msgstr "El marcador de biblioteca no puede ser un enlace simbólico: {path}"
+
+msgctxt "#30602"
+msgid "The folder already contains a marker from another Rclone Nexus library: {path}"
+msgstr "La carpeta ya contiene un marcador de otra biblioteca de Rclone Nexus: {path}"
+
+msgctxt "#30603"
+msgid "The library record does not match its destination."
+msgstr "El registro de biblioteca no coincide con su destino."
+
+msgctxt "#30604"
+msgid "No valid Rclone Nexus marker was found in {path}. No local files were modified."
+msgstr "No se encontró un marcador válido de Rclone Nexus en {path}. No se modificaron archivos locales."
+
+msgctxt "#30605"
+msgid "Local path outside the library: {path}"
+msgstr "Ruta local fuera de la biblioteca: {path}"
+
+msgctxt "#30606"
+msgid "Rejected a path containing a symbolic link: {path}"
+msgstr "Se rechazó una ruta con enlace simbólico: {path}"
+
+msgctxt "#30607"
+msgid "Not enough free space: {free} left and the add-on reserves {reserve} to protect Kodi."
+msgstr "Espacio insuficiente: quedan {free} y el addon reserva {reserve} para proteger Kodi."
+
+msgctxt "#30608"
+msgid "Rejected an STRM destination that is not a regular file: {path}"
+msgstr "Se rechazó un destino STRM que no es un archivo regular: {path}"
+
+msgctxt "#30609"
+msgid "The existing STRM exceeds the safe limit of {limit} bytes: {path}"
+msgstr "El STRM existente supera el límite seguro de {limit} bytes: {path}"
+
+msgctxt "#30610"
+msgid "Operation cancelled while waiting for another sync."
+msgstr "Operación cancelada mientras esperaba otra sincronización."
+
+msgctxt "#30611"
+msgid "Another scan is already modifying this library. It will be retried later."
+msgstr "Ya hay otro escaneo modificando esta biblioteca. Se reintentará más tarde."
+
+msgctxt "#30612"
+msgid "Refused to delete unsafe destination: {path}"
+msgstr "Se rechazó la eliminación del destino inseguro: {path}"
+
+msgctxt "#30613"
+msgid "The registered STRM is not a regular file: {path}"
+msgstr "El STRM registrado no es un archivo regular: {path}"
+
+msgctxt "#30614"
+msgid "Could not delete all managed STRM files: {errors}"
+msgstr "No se pudieron eliminar todos los STRM administrados: {errors}"
+
+msgctxt "#30615"
+msgid "The library marker is a symbolic link: {path}"
+msgstr "El marcador de biblioteca es un enlace simbólico: {path}"
+
+msgctxt "#30616"
+msgid "Could not remove the library marker: {error}"
+msgstr "No se pudo retirar el marcador de la biblioteca: {error}"
+
+msgctxt "#30617"
+msgid "Invalid remote path: contains a NUL character."
+msgstr "Ruta remota inválida: contiene un carácter NUL."
+
+msgctxt "#30618"
+msgid "Unsafe remote path: {path}"
+msgstr "Ruta remota insegura: {path}"
+
+msgctxt "#30619"
+msgid "Export not found"
+msgstr "Exportación no encontrada"
+
+msgctxt "#30620"
+msgid "The manifest contains an invalid STRM path: {path}"
+msgstr "El manifiesto contiene una ruta STRM inválida: {path}"
+
+msgctxt "#30621"
+msgid "Could not generate a unique STRM name for {path}"
+msgstr "No se pudo generar un nombre STRM único para {path}"
+
+msgctxt "#30622"
+msgid "Operation cancelled by the user."
+msgstr "Operación cancelada por el usuario."
+
+msgctxt "#30623"
+msgid "The remote returned zero videos while the previous library had {count}. For safety, no STRM files were deleted. Check the remote or enable the empty scan option."
+msgstr "El remote devolvió cero videos y la biblioteca anterior tenía {count}. Por seguridad no se eliminaron STRM. Verifica el remote o activa la opción de escaneo vacío."
+
+msgctxt "#30624"
+msgid "The obsolete STRM is not a regular file: {path}"
+msgstr "El STRM obsoleto no es un archivo regular: {path}"
+
+msgctxt "#30625"
+msgid "The remote returned zero videos while the previous baseline had {count}. The local state was not replaced."
+msgstr "El remote devolvió cero videos y la referencia anterior tenía {count}. No se reemplazó el estado local."
+
+msgctxt "#30626"
+msgid "unexpected XML root: {tag}"
+msgstr "raíz XML inesperada: {tag}"
+
+msgctxt "#30627"
+msgid "sources.xml is invalid and was not modified: {error}"
+msgstr "sources.xml es inválido y no se modificó: {error}"
+
+msgctxt "#30628"
+msgid "Could not back up sources.xml: {error}"
+msgstr "No se pudo respaldar sources.xml: {error}"
+
+msgctxt "#30800"
+msgid "Invalid advanced arguments: {error}"
+msgstr "Argumentos avanzados inválidos: {error}"
+
+msgctxt "#30801"
+msgid "Advanced argument not allowed: {argument}"
+msgstr "Argumento avanzado no permitido: {argument}"
+
+msgctxt "#30802"
+msgid "The option {option} is not allowed for security reasons."
+msgstr "La opción {option} no está permitida por seguridad."
+
+msgctxt "#30803"
+msgid "Missing value for {option}"
+msgstr "Falta valor para {option}"
+
+msgctxt "#30804"
+msgid "{option} only accepts true when used with =."
+msgstr "{option} solo admite true cuando se usa con =."
+
+msgctxt "#30805"
+msgid "Timeout while running {command}"
+msgstr "Tiempo de espera agotado ejecutando {command}"
+
+msgctxt "#30806"
+msgid "ELF architecture {elf_arch}; Kodi needs {expected_arch}"
+msgstr "Arquitectura ELF {elf_arch}; Kodi necesita {expected_arch}"
+
+msgctxt "#30807"
+msgid "exit code {code}"
+msgstr "código de salida {code}"
+
+msgctxt "#30808"
+msgid "Could not identify the rclone version.\n{output}"
+msgstr "No se pudo identificar la versión de rclone.\n{output}"
+
+msgctxt "#30809"
+msgid "rclone {version} is too old; {minimum} or later is required."
+msgstr "rclone {version} es demasiado antiguo; se requiere {minimum} o superior."
+
+msgctxt "#30810"
+msgid "rclone reports architecture {reported_arch}; Kodi needs {expected_arch}."
+msgstr "rclone reporta arquitectura {reported_arch}; Kodi necesita {expected_arch}."
+
+msgctxt "#30811"
+msgid "No executable rclone {minimum} or later was found.\n\n{report}\n\nSet the binary path in Settings or include it in the ZIP at one of these locations:\n{locations}"
+msgstr "No se encontró un rclone {minimum} o superior que sea ejecutable.\n\n{report}\n\nConfigura la ruta del binario en Ajustes o inclúyelo dentro del ZIP en una de estas rutas:\n{locations}"
+
+msgctxt "#30812"
+msgid "rclone exited with code {code}"
+msgstr "rclone salió con código {code}"
+
+msgctxt "#30813"
+msgid "rclone lsjson returned invalid JSON: {error}"
+msgstr "rclone lsjson devolvió JSON inválido: {error}"
+
+msgctxt "#30814"
+msgid "Operation cancelled by the user."
+msgstr "Operación cancelada por el usuario."
+
+msgctxt "#30815"
+msgid "The recursive scan exceeded {seconds} seconds."
+msgstr "El escaneo recursivo excedió {seconds} segundos."
+
+msgctxt "#30816"
+msgid "Could not read rclone lsf output: {error}"
+msgstr "No se pudo leer la salida de rclone lsf: {error}"
+
+msgctxt "#30817"
+msgid "rclone lsf exited with code {code}"
+msgstr "rclone lsf salió con código {code}"
+
+msgctxt "#30818"
+msgid "rclone lsf did not finish correctly."
+msgstr "rclone lsf no terminó correctamente."
+
+msgctxt "#30819"
+msgid "Could not create the startup lock: {error}"
+msgstr "No se pudo crear el bloqueo de arranque: {error}"
+
+msgctxt "#30820"
+msgid "Another Kodi process is starting an rclone server. Try again."
+msgstr "Otro proceso de Kodi está iniciando un servidor rclone. Intenta de nuevo."
+
+msgctxt "#30821"
+msgid "rclone serve http exited during startup.\n{logs}"
+msgstr "rclone serve http terminó al iniciar.\n{logs}"
+
+msgctxt "#30822"
+msgid "rclone serve http did not pass local verification within {seconds}s.\n{logs}"
+msgstr "rclone serve http no superó la verificación local en {seconds}s.\n{logs}"

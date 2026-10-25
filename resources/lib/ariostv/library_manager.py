@@ -20,6 +20,8 @@ except Exception:
     class RcloneCancelled(RuntimeError):
         pass
 
+from .i18n import tr
+
 try:
     import xbmc
     import xbmcaddon
@@ -139,21 +141,19 @@ def _expected_marker(entry):
 def _write_export_marker(entry):
     destination = os.path.abspath(entry.get('destination', ''))
     if _is_dangerous_destination(destination) or os.path.islink(destination):
-        raise RuntimeError('Destino de biblioteca inseguro: %s' % destination)
+        raise RuntimeError(tr(30600, path=destination))
     mkdirs(destination)
     marker_path = _marker_path(entry)
     expected = _expected_marker(entry)
     if os.path.lexists(marker_path):
         if os.path.islink(marker_path):
-            raise RuntimeError('El marcador de biblioteca no puede ser un enlace simbolico: %s' % marker_path)
+            raise RuntimeError(tr(30601, path=marker_path))
         existing = _load_json(marker_path, {})
         if not isinstance(existing, dict) or any(
             existing.get(key) != expected.get(key)
             for key in ('addon_id', 'export_id', 'remote', 'path')
         ):
-            raise RuntimeError(
-                'La carpeta ya contiene un marcador de otra biblioteca de Rclone Nexus: %s' % destination
-            )
+            raise RuntimeError(tr(30602, path=destination))
         return
     _save_json(marker_path, expected)
 
@@ -161,13 +161,13 @@ def _write_export_marker(entry):
 def ensure_export_marker(entry, create_if_missing=False):
     destination = os.path.abspath(entry.get('destination', ''))
     if _is_dangerous_destination(destination) or os.path.islink(destination):
-        raise RuntimeError('Destino de biblioteca inseguro: %s' % destination)
+        raise RuntimeError(tr(30600, path=destination))
     expected_id = export_id(entry.get('remote', ''), entry.get('path', ''), destination)
     if entry.get('id') != expected_id:
-        raise RuntimeError('El registro de biblioteca no coincide con su destino.')
+        raise RuntimeError(tr(30603))
     marker_path = _marker_path(entry)
     if os.path.lexists(marker_path) and os.path.islink(marker_path):
-        raise RuntimeError('El marcador de biblioteca no puede ser un enlace simbolico: %s' % marker_path)
+        raise RuntimeError(tr(30601, path=marker_path))
     marker = _load_json(marker_path, {})
     if not marker and create_if_missing:
         _write_export_marker(entry)
@@ -177,9 +177,7 @@ def ensure_export_marker(entry, create_if_missing=False):
         marker.get(key) != expected.get(key)
         for key in ('addon_id', 'export_id', 'remote', 'path')
     ):
-        raise RuntimeError(
-            'No se encontro un marcador valido de Rclone Nexus en %s. No se modificaron archivos locales.' % destination
-        )
+        raise RuntimeError(tr(30604, path=destination))
     return True
 
 
@@ -188,7 +186,7 @@ def _safe_join(root, relative):
     root_abs = os.path.abspath(root)
     candidate = os.path.abspath(os.path.join(root_abs, relative))
     if not _is_within(candidate, root_abs):
-        raise RuntimeError('Ruta local fuera de la biblioteca: %s' % relative)
+        raise RuntimeError(tr(30605, path=relative))
     # Do not follow a pre-existing symlink from the managed library into another tree.
     current = root_abs
     relative_parts = os.path.relpath(candidate, root_abs).split(os.sep)
@@ -197,7 +195,7 @@ def _safe_join(root, relative):
             continue
         current = os.path.join(current, part)
         if os.path.lexists(current) and os.path.islink(current):
-            raise RuntimeError('Se rechazo una ruta con enlace simbolico: %s' % current)
+            raise RuntimeError(tr(30606, path=current))
     return candidate
 
 
@@ -249,11 +247,7 @@ def ensure_storage_reserve(path, extra_bytes=0):
     available = free_space_bytes(path)
     required = reserve + max(0, int(extra_bytes or 0))
     if available is not None and available < required:
-        raise RuntimeError(
-            'Espacio insuficiente: quedan %s y el addon reserva %s para proteger Kodi.' % (
-                format_bytes(available), format_bytes(reserve)
-            )
-        )
+        raise RuntimeError(tr(30607, free=format_bytes(available), reserve=format_bytes(reserve)))
     return available
 
 
@@ -264,11 +258,11 @@ def _snapshot_managed_file(path, snapshots, max_bytes=1024 * 1024):
         snapshots[path] = None
         return
     if os.path.islink(path) or not os.path.isfile(path):
-        raise RuntimeError('Se rechazo un destino STRM que no es un archivo regular: %s' % path)
+        raise RuntimeError(tr(30608, path=path))
     with open(path, 'rb') as fh:
         data = fh.read(max_bytes + 1)
     if len(data) > max_bytes:
-        raise RuntimeError('El STRM existente supera el limite seguro de %d bytes: %s' % (max_bytes, path))
+        raise RuntimeError(tr(30609, limit=max_bytes, path=path))
     snapshots[path] = data
 
 
@@ -279,17 +273,17 @@ def _restore_managed_files(snapshots, root):
             if previous is None:
                 if os.path.lexists(path):
                     if os.path.islink(path) or not os.path.isfile(path):
-                        raise RuntimeError('No se elimino durante rollback un destino no regular: %s' % path)
+                        raise RuntimeError('Rollback did not remove a non-regular destination: %s' % path)
                     os.remove(path)
                     _prune_empty_dirs(path, root)
             else:
                 if os.path.lexists(path) and (os.path.islink(path) or not os.path.isfile(path)):
-                    raise RuntimeError('No se restauro durante rollback un destino no regular: %s' % path)
+                    raise RuntimeError('Rollback did not restore a non-regular destination: %s' % path)
                 _write_bytes_atomic(path, previous)
         except Exception as exc:
             errors.append(str(exc))
     if errors:
-        _log('Rollback STRM incompleto: %s' % '; '.join(errors[:5]), xbmc.LOGERROR)
+        _log('Incomplete STRM rollback: %s' % '; '.join(errors[:5]), xbmc.LOGERROR)
 
 
 def _unique_destination(remote, remote_path, requested):
@@ -385,9 +379,9 @@ class _ExclusiveLock:
                 except Exception:
                     pass
                 if self.abort_callback and self.abort_callback():
-                    raise RcloneCancelled('Operacion cancelada mientras esperaba otra sincronizacion.')
+                    raise RcloneCancelled(tr(30610))
                 if time.monotonic() >= deadline:
-                    raise LibraryBusy('Ya hay otro escaneo modificando esta biblioteca. Se reintentara mas tarde.')
+                    raise LibraryBusy(tr(30611))
                 time.sleep(0.2)
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -397,7 +391,7 @@ class _ExclusiveLock:
             except FileNotFoundError:
                 pass
             except Exception as exc:
-                _log('No se pudo retirar el bloqueo %s: %s' % (self.path, exc), xbmc.LOGWARNING)
+                _log('Could not release lock %s: %s' % (self.path, exc), xbmc.LOGWARNING)
         self.owned = False
 
 
@@ -558,7 +552,7 @@ def _remove_tree(entry):
     ensure_export_marker(entry, create_if_missing=False)
     root = os.path.abspath(entry.get('destination', ''))
     if _is_dangerous_destination(root) or os.path.islink(root):
-        raise RuntimeError('Se rechazo la eliminacion del destino inseguro: %s' % root)
+        raise RuntimeError(tr(30612, path=root))
     manifest = _load_json(manifest_path(entry), {'files': {}})
     files = manifest.get('files', {}) if isinstance(manifest, dict) else {}
     errors = []
@@ -572,21 +566,21 @@ def _remove_tree(entry):
             target = _safe_join(root, os.path.join(*relative.split('/')))
             if os.path.lexists(target):
                 if os.path.islink(target) or not os.path.isfile(target):
-                    raise RuntimeError('El STRM registrado no es un archivo regular: %s' % target)
+                    raise RuntimeError(tr(30613, path=target))
                 os.remove(target)
                 _prune_empty_dirs(target, root)
         except Exception as exc:
             errors.append(str(exc))
     if errors:
-        raise RuntimeError('No se pudieron eliminar todos los STRM administrados: %s' % '; '.join(errors[:5]))
+        raise RuntimeError(tr(30614, errors='; '.join(errors[:5])))
     try:
         marker = _marker_path(entry)
         if os.path.islink(marker):
-            raise RuntimeError('El marcador de biblioteca es un enlace simbolico: %s' % marker)
+            raise RuntimeError(tr(30615, path=marker))
         if os.path.isfile(marker):
             os.remove(marker)
     except Exception as exc:
-        raise RuntimeError('No se pudo retirar el marcador de la biblioteca: %s' % exc)
+        raise RuntimeError(tr(30616, error=exc))
     try:
         os.rmdir(root)
     except OSError:
@@ -641,10 +635,10 @@ def is_video(path):
 def _validate_remote_path(path):
     value = str(path or '')
     if '\x00' in value:
-        raise RuntimeError('Ruta remota invalida: contiene un caracter NUL.')
+        raise RuntimeError(tr(30617))
     parts = value.replace('\\', '/').split('/')
     if any(part in ('.', '..') for part in parts):
-        raise RuntimeError('Ruta remota insegura: %s' % value)
+        raise RuntimeError(tr(30618, path=value))
     return value
 
 
@@ -654,7 +648,7 @@ def create_export(remote, path, display_name, media_type='videos', destination='
     root = translate(requested)
     root = _unique_destination(remote, path, root)
     if _is_dangerous_destination(root):
-        raise RuntimeError('Destino de biblioteca inseguro: %s' % root)
+        raise RuntimeError(tr(30600, path=root))
     mkdirs(root)
     entry = {
         'id': export_id(remote, path, root),
@@ -703,7 +697,7 @@ def _prune_empty_dirs(path, stop):
 def _sync_export_unlocked(backend, entry, delete_missing=None, abort_callback=None):
     """Synchronize one registered folder with bounded scan memory and transactional STRM updates."""
     if not entry:
-        raise ValueError('Export no encontrado')
+        raise ValueError(tr(30619))
     if delete_missing is None:
         delete_missing = _setting_bool('library_delete_missing', True)
 
@@ -770,7 +764,7 @@ def _sync_export_unlocked(backend, entry, delete_missing=None, abort_callback=No
         if old_record and old_record.get('strm'):
             relative = str(old_record.get('strm')).replace('/', os.sep)
             if not relative.lower().endswith('.strm'):
-                raise RuntimeError('El manifiesto contiene una ruta STRM invalida: %s' % relative)
+                raise RuntimeError(tr(30620, path=relative))
         else:
             relative = strm_relative_path(entry.get('path', ''), remote_path)
         if not candidate_conflicts(relative, remote_path, old_record):
@@ -789,12 +783,12 @@ def _sync_export_unlocked(backend, entry, delete_missing=None, abort_callback=No
             if not candidate_conflicts(candidate, remote_path, old_record):
                 return candidate
             counter += 1
-        raise RuntimeError('No se pudo generar un nombre STRM unico para %s' % remote_path)
+        raise RuntimeError(tr(30621, path=remote_path))
 
     try:
         for item in iterator:
             if abort_callback and abort_callback():
-                raise RcloneCancelled('Operacion cancelada por el usuario.')
+                raise RcloneCancelled(tr(30622))
             remote_path = _validate_remote_path(item.get('path', ''))
             if not remote_path or not is_video(remote_path):
                 continue
@@ -815,7 +809,7 @@ def _sync_export_unlocked(backend, entry, delete_missing=None, abort_callback=No
                 'orig_id': signature['orig_id'],
             }
             if os.path.lexists(local_path) and (os.path.islink(local_path) or not os.path.isfile(local_path)):
-                raise RuntimeError('Se rechazo un destino STRM que no es un archivo regular: %s' % local_path)
+                raise RuntimeError(tr(30608, path=local_path))
             needs_write = not old or not os.path.exists(local_path)
             if needs_write:
                 if write_count % 64 == 0:
@@ -853,14 +847,11 @@ def _sync_export_unlocked(backend, entry, delete_missing=None, abort_callback=No
 
     if abort_callback and abort_callback():
         rollback_files()
-        raise RcloneCancelled('Operacion cancelada por el usuario.')
+        raise RcloneCancelled(tr(30622))
 
     if old_files and not current and not _setting_bool('library_allow_empty_remote', False):
         rollback_files()
-        raise RuntimeError(
-            'El remote devolvio cero videos y la biblioteca anterior tenia %d. '
-            'Por seguridad no se eliminaron STRM. Verifica el remote o activa la opcion de escaneo vacio.' % len(old_files)
-        )
+        raise RuntimeError(tr(30623, count=len(old_files)))
 
     current_local_paths = {
         str(record.get('strm') or '').replace('\\', '/').casefold()
@@ -894,7 +885,7 @@ def _sync_export_unlocked(backend, entry, delete_missing=None, abort_callback=No
         if delete_missing:
             for remote_path, old in old_files.items():
                 if abort_callback and abort_callback():
-                    raise RcloneCancelled('Operacion cancelada por el usuario.')
+                    raise RcloneCancelled(tr(30622))
                 if remote_path in current or not isinstance(old, dict):
                     continue
                 rel = str(old.get('strm') or '').replace('\\', '/')
@@ -904,7 +895,7 @@ def _sync_export_unlocked(backend, entry, delete_missing=None, abort_callback=No
                 _snapshot_managed_file(local_path, file_snapshots)
                 if os.path.lexists(local_path):
                     if os.path.islink(local_path) or not os.path.isfile(local_path):
-                        raise RuntimeError('El STRM obsoleto no es un archivo regular: %s' % local_path)
+                        raise RuntimeError(tr(30624, path=local_path))
                     os.remove(local_path)
                     removed += 1
                     if low_impact and removed % 64 == 0:
@@ -912,7 +903,7 @@ def _sync_export_unlocked(backend, entry, delete_missing=None, abort_callback=No
                     _prune_empty_dirs(local_path, entry['destination'])
 
         if abort_callback and abort_callback():
-            raise RcloneCancelled('Operacion cancelada por el usuario.')
+            raise RcloneCancelled(tr(30622))
         updated_entry['last_removed'] = removed
         ensure_storage_reserve(manifest_file, extra_bytes=max(1024 * 1024, len(current) * 160))
         _save_json(manifest_file, manifest)
@@ -925,14 +916,14 @@ def _sync_export_unlocked(backend, entry, delete_missing=None, abort_callback=No
             elif os.path.isfile(manifest_file) and not os.path.islink(manifest_file):
                 os.remove(manifest_file)
         except Exception as restore_exc:
-            _log('No se pudo restaurar el manifiesto anterior: %s' % restore_exc, xbmc.LOGERROR)
+            _log('Could not restore the previous manifest: %s' % restore_exc, xbmc.LOGERROR)
         raise
 
     if added_recent and not first_sync:
         try:
             add_recent_items(entry['remote'], added_recent, entry_id=entry['id'])
         except Exception as exc:
-            _log('No se pudo actualizar la lista de novedades: %s' % exc, xbmc.LOGWARNING)
+            _log('Could not update the new content list: %s' % exc, xbmc.LOGWARNING)
 
     return {
         'entry': updated_entry,
@@ -949,7 +940,7 @@ def _sync_export_unlocked(backend, entry, delete_missing=None, abort_callback=No
 def sync_export(backend, entry, delete_missing=None, abort_callback=None):
     """Run one export at a time for a remote path, across threads and Kodi processes."""
     if not entry:
-        raise ValueError('Export no encontrado')
+        raise ValueError(tr(30619))
     with _resource_lock(entry.get('remote'), entry.get('path'), abort_callback=abort_callback):
         return _sync_export_unlocked(
             backend, entry, delete_missing=delete_missing, abort_callback=abort_callback
@@ -1004,7 +995,7 @@ def _scan_new_content_unlocked(backend, remote, path='', abort_callback=None):
     try:
         for item in iterator:
             if abort_callback and abort_callback():
-                raise RcloneCancelled('Operacion cancelada por el usuario.')
+                raise RcloneCancelled(tr(30622))
             item_path = _validate_remote_path(item.get('path', ''))
             if not is_video(item_path):
                 continue
@@ -1019,12 +1010,9 @@ def _scan_new_content_unlocked(backend, remote, path='', abort_callback=None):
         except Exception:
             pass
     if abort_callback and abort_callback():
-        raise RcloneCancelled('Operacion cancelada por el usuario.')
+        raise RcloneCancelled(tr(30622))
     if old_files and not current and not _setting_bool('library_allow_empty_remote', False):
-        raise RuntimeError(
-            'El remote devolvio cero videos y la referencia anterior tenia %d. '
-            'No se reemplazo el estado local.' % len(old_files)
-        )
+        raise RuntimeError(tr(30625, count=len(old_files)))
     removed = sum(1 for item_path in old_files if item_path not in current)
     ensure_storage_reserve(state_path, extra_bytes=max(1024 * 1024, len(current) * 120))
     _save_json(
@@ -1118,10 +1106,10 @@ def _ensure_sources_tree(path):
             tree = ET.parse(path)
             root = tree.getroot()
             if root.tag != 'sources':
-                raise ValueError('raiz XML inesperada: %s' % root.tag)
+                raise ValueError(tr(30626, tag=root.tag))
             return tree, root
         except Exception as exc:
-            raise RuntimeError('sources.xml es invalido y no se modifico: %s' % exc)
+            raise RuntimeError(tr(30627, error=exc))
     root = ET.Element('sources')
     for section in ('programs', 'video', 'music', 'pictures', 'files', 'games'):
         element = ET.SubElement(root, section)
@@ -1140,7 +1128,7 @@ def _write_sources_tree(tree, path):
             try:
                 shutil.copy2(path, backup)
             except Exception as exc:
-                raise RuntimeError('No se pudo respaldar sources.xml: %s' % exc)
+                raise RuntimeError(tr(30628, error=exc))
         os.replace(tmp, path)
     finally:
         try:
@@ -1169,7 +1157,7 @@ def register_kodi_video_source(entry):
             return False
     source = ET.SubElement(video, 'source')
     name = ET.SubElement(source, 'name')
-    name.text = 'Rclone Nexus - %s' % entry.get('name', 'Biblioteca')
+    name.text = 'Rclone Nexus - %s' % entry.get('name', 'Library')
     path_node = ET.SubElement(source, 'path')
     path_node.set('pathversion', '1')
     path_node.text = destination_with_sep
@@ -1211,7 +1199,7 @@ def unregister_kodi_video_source(entry):
             _write_sources_tree(tree, sources_path)
         return removed
     except Exception as exc:
-        _log('No se pudo quitar la fuente de Kodi: %s' % exc, xbmc.LOGWARNING)
+        _log('Could not remove the Kodi source: %s' % exc, xbmc.LOGWARNING)
         return False
 
 
@@ -1244,7 +1232,7 @@ def request_library_update(path=''):
     try:
         if _kodi_is_scanning():
             queue_library_update(path)
-            _log('Kodi ya esta escaneando; actualizacion guardada como pendiente.', xbmc.LOGINFO)
+            _log('Kodi is already scanning; update saved as pending.', xbmc.LOGINFO)
             return False
         if path:
             safe = path.replace('"', '')
@@ -1257,7 +1245,7 @@ def request_library_update(path=''):
             queue_library_update(path)
         except Exception:
             pass
-        _log('No se pudo solicitar UpdateLibrary: %s' % exc, xbmc.LOGWARNING)
+        _log('Could not request UpdateLibrary: %s' % exc, xbmc.LOGWARNING)
         return False
 
 

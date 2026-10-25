@@ -152,6 +152,14 @@ Media files are **not stored** on the device. The add-on also removes leftover V
 
 ---
 
+## 🌍 Languages and translations
+
+The add-on follows the Kodi interface language (**Settings → Interface → Regional → Language**). English and Spanish are included; any other language falls back to English. Regional variants (`en_au`, `en_nz`, `en_us`, `es_ar`, `es_mx`) are symlinks to the `en_gb` and `es_es` catalogues, because Kodi does not fall back from a variant to its base language.
+
+Texts live in `resources/language/resource.language.<lang>/strings.po` and are looked up by numeric ID with `tr()` from `resources/lib/ariostv/i18n.py`. To add a language, copy `resource.language.en_gb/strings.po` to a new `resource.language.<lang>/` folder and fill in every `msgstr`, keeping the `{placeholders}` unchanged. Run `python scripts/validate.py` to check the catalogues.
+
+---
+
 ## 🛠️ Build your own release ZIP
 
 ```bash
