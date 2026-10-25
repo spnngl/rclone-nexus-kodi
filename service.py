@@ -292,7 +292,7 @@ class SmartSyncManager:
                 }
             self._save_dirty_locked()
 
-    def record_entries_for_retry(self, entries, error='Escaneo pendiente'):
+    def record_entries_for_retry(self, entries, error='Scan pending'):
         now = time.time()
         with self.dirty_lock:
             for entry in entries:
