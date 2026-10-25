@@ -33,7 +33,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from .i18n import tr
+from .i18n import english, tr
 from .kodi import ADDON, ADDON_ID, exists, mkdirs, setting_bool, setting_int, setting_text, translate, xbmc
 ANDROID_API_LEVEL = 21
 ADDON_VERSION = '1.3.6'
@@ -689,7 +689,7 @@ def _make_executable(path):
         mode = os.stat(path).st_mode
         os.chmod(path, mode | stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
     except Exception as exc:
-        _report('Could not apply chmod to %s: %s' % (path, exc), xbmc.LOGWARNING)
+        _report('Could not apply chmod to %s: %s' % (path, english(exc)), xbmc.LOGWARNING)
 
 
 
@@ -849,9 +849,9 @@ def import_manual_rclone():
             if ok:
                 _report('rclone imported successfully from %s' % src, xbmc.LOGINFO)
                 return path
-            _report('Imported but not executable: %s :: %s' % (src, text[:800]), xbmc.LOGWARNING)
+            _report('Imported but not executable: %s :: %s' % (src, english(text)[:800]), xbmc.LOGWARNING)
         except Exception as exc:
-            _report('Import failed for %s: %s' % (src, exc), xbmc.LOGWARNING)
+            _report('Import failed for %s: %s' % (src, english(exc)), xbmc.LOGWARNING)
     return ''
 
 
@@ -882,9 +882,9 @@ def find_rclone(allow_download=False):
             if ok:
                 _report('rclone OK: %s (%s)' % (run_path, detail.splitlines()[0]), xbmc.LOGINFO)
                 return run_path
-            _report('Invalid candidate: %s :: %s' % (run_path, detail[:1000]), xbmc.LOGWARNING)
+            _report('Invalid candidate: %s :: %s' % (run_path, english(detail)[:1000]), xbmc.LOGWARNING)
         except Exception as exc:
-            _report('Candidate is not executable %s: %s' % (path, exc), xbmc.LOGWARNING)
+            _report('Candidate is not executable %s: %s' % (path, english(exc)), xbmc.LOGWARNING)
     return ''
 
 
@@ -1045,7 +1045,7 @@ class RcloneBackend:
             features = self.backend_features(remote, path).get('Features') or {}
             return bool(features.get('ChangeNotify'))
         except Exception as exc:
-            _report('Could not query ChangeNotify for %s: %s' % (remote, exc), xbmc.LOGWARNING)
+            _report('Could not query ChangeNotify for %s: %s' % (remote, english(exc)), xbmc.LOGWARNING)
             return False
 
     def change_notify_command(self, remote, poll_interval='5m'):
@@ -1149,7 +1149,7 @@ class RcloneBackend:
             try:
                 _atomic_json(cache_path, items)
             except Exception as exc:
-                _report('Could not write listing cache: %s' % exc, xbmc.LOGWARNING)
+                _report('Could not write listing cache: %s' % english(exc), xbmc.LOGWARNING)
         return items
 
     def _stream_env(self, low_impact=False):
