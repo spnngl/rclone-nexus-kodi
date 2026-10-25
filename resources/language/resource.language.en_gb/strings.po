@@ -29,7 +29,7 @@ msgid "Local rclone binary"
 msgstr ""
 
 msgctxt "#30004"
-msgid "Direct path to the rclone binary (minimum 1.75.0)"
+msgid "Direct path to the rclone binary (minimum 1.75.2)"
 msgstr ""
 
 msgctxt "#30005"

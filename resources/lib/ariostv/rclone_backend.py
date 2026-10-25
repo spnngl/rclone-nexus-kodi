@@ -37,8 +37,8 @@ from .i18n import english, tr
 from .kodi import ADDON, ADDON_ID, exists, mkdirs, setting_bool, setting_int, setting_text, translate, xbmc
 ANDROID_API_LEVEL = 21
 ADDON_VERSION = ADDON.getAddonInfo('version') or 'dev'
-MIN_RCLONE_VERSION = (1, 75, 0)
-MIN_RCLONE_VERSION_TEXT = '1.75.0'
+MIN_RCLONE_VERSION = (1, 75, 2)
+MIN_RCLONE_VERSION_TEXT = '1.75.2'
 SERVER_IDENTITY_HEADER = 'X-Rclone-Nexus-Token'
 VIDEO_EXTENSIONS = (
     '.mkv', '.mp4', '.avi', '.m4v', '.mov', '.ts', '.iso', '.m2ts', '.mpg',

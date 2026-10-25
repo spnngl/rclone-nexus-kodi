@@ -29,8 +29,8 @@ msgid "Local rclone binary"
 msgstr "Binario rclone local"
 
 msgctxt "#30004"
-msgid "Direct path to the rclone binary (minimum 1.75.0)"
-msgstr "Ruta directa del binario rclone (mínimo 1.75.0)"
+msgid "Direct path to the rclone binary (minimum 1.75.2)"
+msgstr "Ruta directa del binario rclone (mínimo 1.75.2)"
 
 msgctxt "#30005"
 msgid "Internal executable folder (optional)"

@@ -18,15 +18,16 @@
 
 ## ✨ What is this?
 
-### Latest release: 1.4.0
+### Latest release: 1.4.1
 
-[Download plugin.ariostv-1.4.0.zip](../../releases/tag/plugin.ariostv-1.4.0)
+[Download plugin.ariostv-1.4.1.zip](../../releases/tag/plugin.ariostv-1.4.1)
 
-Version 1.4.0 follows the Kodi interface language (English and Spanish included),
-targets Kodi 21 (Omega) or newer, and turns the rclone architecture and VFS cache
-mode settings into pick lists. See [CHANGELOG.md](CHANGELOG.md) for details.
+Version 1.4.1 requires rclone 1.75.2 or newer. Version 1.4.0 follows the Kodi
+interface language (English and Spanish included), targets Kodi 21 (Omega) or
+newer, and turns the rclone architecture and VFS cache mode settings into pick
+lists. See [CHANGELOG.md](CHANGELOG.md) for details.
 
-The ZIP requires **rclone 1.75.0 or newer** and does not bundle the rclone
+The ZIP requires **rclone 1.75.2 or newer** and does not bundle the rclone
 executable. Configure/import a compatible local binary for the architecture of
 your Kodi application, not merely the physical CPU.
 
@@ -82,11 +83,11 @@ The add-on **does not include or download** the rclone binary itself — you nee
 
 Download the **armv7a** binary from rclone's official test builds:
 
-**➡️ [rclone-android-21-armv7a.gz](https://beta.rclone.org/v1.75.0/testbuilds/rclone-android-21-armv7a.gz)**
+**➡️ [rclone-android-21-armv7a.gz](https://beta.rclone.org/v1.75.2/testbuilds/rclone-android-21-armv7a.gz)**
 
 This architecture covers the vast majority of Android TV devices on the market, even ones with 64-bit CPUs — Fire OS and many third-party launchers still run in 32-bit compatibility mode.
 
-Other architectures available in the same repository ([see full folder](https://beta.rclone.org/v1.75.0/testbuilds/)):
+Other architectures available in the same repository ([see full folder](https://beta.rclone.org/v1.75.2/testbuilds/)):
 
 | Architecture | File | Typical devices |
 |---|---|---|

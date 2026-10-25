@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.1
+
+- Requires rclone 1.75.2 or newer; older binaries are rejected by the version check. The bundled build manifest and the download links point to the official 1.75.2 Android builds.
+
 ## 1.4.0
 
 - The interface, settings, dialogs, notifications and error messages now follow the Kodi interface language instead of being hardcoded in Spanish.

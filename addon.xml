@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.ariostv" name="Rclone Nexus" version="1.4.0" provider-name="AriosTV">
+<addon id="plugin.ariostv" name="Rclone Nexus" version="1.4.1" provider-name="AriosTV">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
     </requires>
@@ -14,7 +14,7 @@
         <description lang="en_GB">Browse crypt, combine and other rclone remotes, stream through a verified local rclone server, and export folders as STRM files for the Kodi library. It can optionally synchronise remotes during playback with low CPU and API usage, deferring Kodi's heavier indexing stage until playback stops.</description>
         <platform>android</platform>
         <license>GPL-3.0-or-later</license>
-        <news>1.4.0: The interface now follows the Kodi language (English and Spanish included). The rclone architecture and VFS cache mode settings are pick lists. Requires Kodi 21 (Omega) or newer.&#10;1.3.5: Adds optional low-impact remote scans during playback. Scanner rclone processes use one Go CPU and one checker with provider calls limited to two per second; Kodi indexing is deferred until playback stops. Disabled by default.</news>
+        <news>1.4.1: Requires rclone 1.75.2 or newer.&#10;1.4.0: The interface now follows the Kodi language (English and Spanish included). The rclone architecture and VFS cache mode settings are pick lists. Requires Kodi 21 (Omega) or newer.&#10;1.3.5: Adds optional low-impact remote scans during playback. Scanner rclone processes use one Go CPU and one checker with provider calls limited to two per second; Kodi indexing is deferred until playback stops. Disabled by default.</news>
         <assets>
             <icon>icon.png</icon>
             <fanart>fanart.jpg</fanart>

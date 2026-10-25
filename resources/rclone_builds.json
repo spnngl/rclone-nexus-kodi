@@ -1,14 +1,14 @@
 {
   "schema": 1,
-  "rclone_version": "1.75.0",
-  "minimum_version": "1.75.0",
+  "rclone_version": "1.75.2",
+  "minimum_version": "1.75.2",
   "android_api_level": 21,
   "source": "Official rclone Android test builds",
   "builds": {
     "armv7a": {
       "kodi_abi": "armeabi-v7a",
       "filename": "rclone-android-21-armv7a.gz",
-      "official_url": "https://beta.rclone.org/v1.75.0/testbuilds/rclone-android-21-armv7a.gz",
+      "official_url": "https://beta.rclone.org/v1.75.2/testbuilds/rclone-android-21-armv7a.gz",
       "addon_gzip_path": "resources/bin/android/armeabi-v7a/rclone.gz",
       "addon_path": "resources/bin/android/armeabi-v7a/rclone",
       "sha256_gzip": "",
@@ -18,7 +18,7 @@
     "armv8a": {
       "kodi_abi": "arm64-v8a",
       "filename": "rclone-android-21-armv8a.gz",
-      "official_url": "https://beta.rclone.org/v1.75.0/testbuilds/rclone-android-21-armv8a.gz",
+      "official_url": "https://beta.rclone.org/v1.75.2/testbuilds/rclone-android-21-armv8a.gz",
       "addon_gzip_path": "resources/bin/android/arm64-v8a/rclone.gz",
       "addon_path": "resources/bin/android/arm64-v8a/rclone",
       "sha256_gzip": "",
@@ -28,7 +28,7 @@
     "x86": {
       "kodi_abi": "x86",
       "filename": "rclone-android-21-x86.gz",
-      "official_url": "https://beta.rclone.org/v1.75.0/testbuilds/rclone-android-21-x86.gz",
+      "official_url": "https://beta.rclone.org/v1.75.2/testbuilds/rclone-android-21-x86.gz",
       "addon_gzip_path": "resources/bin/android/x86/rclone.gz",
       "addon_path": "resources/bin/android/x86/rclone",
       "sha256_gzip": "",
@@ -38,7 +38,7 @@
     "x64": {
       "kodi_abi": "x86_64",
       "filename": "rclone-android-21-x64.gz",
-      "official_url": "https://beta.rclone.org/v1.75.0/testbuilds/rclone-android-21-x64.gz",
+      "official_url": "https://beta.rclone.org/v1.75.2/testbuilds/rclone-android-21-x64.gz",
       "addon_gzip_path": "resources/bin/android/x86_64/rclone.gz",
       "addon_path": "resources/bin/android/x86_64/rclone",
       "sha256_gzip": "",
