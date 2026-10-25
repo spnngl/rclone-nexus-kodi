@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path, PurePosixPath
-import shutil
 import xml.etree.ElementTree as ET
 import zipfile
 

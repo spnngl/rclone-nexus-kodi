@@ -34,48 +34,7 @@ import urllib.parse
 import urllib.request
 
 from .i18n import tr
-
-try:
-    import xbmc
-    import xbmcaddon
-    import xbmcvfs
-except Exception:  # local syntax/tests outside Kodi
-    class xbmc:
-        LOGDEBUG = 0
-        LOGINFO = 1
-        LOGWARNING = 2
-        LOGERROR = 3
-        @staticmethod
-        def log(msg, level=0):
-            print(msg)
-    class _Addon:
-        def getAddonInfo(self, key):
-            if key == 'profile':
-                return '/tmp/plugin.ariostv-profile/'
-            if key == 'path':
-                return os.getcwd()
-            if key == 'id':
-                return 'plugin.ariostv'
-            return ''
-        def getSetting(self, key):
-            return ''
-    class xbmcaddon:
-        @staticmethod
-        def Addon():
-            return _Addon()
-    class xbmcvfs:
-        @staticmethod
-        def translatePath(path):
-            return path.replace('special://profile/', '/tmp/kodi-profile/').replace('special://home/', '/tmp/kodi-home/')
-        @staticmethod
-        def exists(path):
-            return os.path.exists(path)
-        @staticmethod
-        def mkdirs(path):
-            os.makedirs(path, exist_ok=True)
-
-ADDON = xbmcaddon.Addon()
-ADDON_ID = ADDON.getAddonInfo('id') or 'plugin.ariostv'
+from .kodi import ADDON, ADDON_ID, exists, mkdirs, setting_bool, setting_int, setting_text, translate, xbmc
 ANDROID_API_LEVEL = 21
 ADDON_VERSION = '1.3.6'
 MIN_RCLONE_VERSION = (1, 75, 0)
@@ -501,29 +460,6 @@ def get_last_report():
     return '\n'.join(_LAST_REPORT[-100:])
 
 
-def translate(path):
-    try:
-        return xbmcvfs.translatePath(path)
-    except Exception:
-        return path
-
-
-def mkdirs(path):
-    if not path:
-        return
-    try:
-        xbmcvfs.mkdirs(path)
-    except Exception:
-        os.makedirs(path, exist_ok=True)
-
-
-def exists(path):
-    try:
-        return bool(path) and (os.path.exists(path) or xbmcvfs.exists(path))
-    except Exception:
-        return bool(path) and os.path.exists(path)
-
-
 def addon_profile():
     path = translate(ADDON.getAddonInfo('profile') or ('special://profile/addon_data/%s/' % ADDON_ID))
     mkdirs(path)
@@ -532,30 +468,6 @@ def addon_profile():
 
 def addon_path():
     return translate(ADDON.getAddonInfo('path') or '')
-
-
-def _setting_bool(key, default=False):
-    value = ADDON.getSetting(key)
-    if value in (None, ''):
-        return bool(default)
-    return str(value).strip().lower() in ('true', '1', 'yes', 'on', 'si', 'sí')
-
-
-def _setting_int(key, default, minimum=None, maximum=None):
-    try:
-        value = int(ADDON.getSetting(key)) if ADDON.getSetting(key) not in (None, '') else int(default)
-    except Exception:
-        value = int(default)
-    if minimum is not None:
-        value = max(minimum, value)
-    if maximum is not None:
-        value = min(maximum, value)
-    return value
-
-
-def _setting_text(key, default=''):
-    value = ADDON.getSetting(key)
-    return value if value not in (None, '') else default
 
 
 def _run_getprop(prop):
@@ -618,7 +530,7 @@ def _apply_process_bitness(arch):
 
 
 def detected_android_arch():
-    forced = (_setting_text('rclone_arch', 'auto') or 'auto').strip().lower()
+    forced = (setting_text('rclone_arch', 'auto') or 'auto').strip().lower()
     aliases = {
         'auto': '', 'automatico': '', 'automático': '',
         'armv7': 'armv7a', 'armeabi-v7a': 'armv7a', '32': 'armv7a', '32bit': 'armv7a',
@@ -684,7 +596,7 @@ def _can_write_dir(path):
 
 
 def executable_base_dir():
-    custom = _setting_text('rclone_install_dir')
+    custom = setting_text('rclone_install_dir')
     candidates = []
     if custom:
         candidates.append(translate(custom))
@@ -726,7 +638,7 @@ def _abi_dirs(arch):
 def _candidate_paths():
     arch = detected_android_arch()
     candidates = []
-    setting = _setting_text('rclone_path')
+    setting = setting_text('rclone_path')
     if setting:
         candidates.append(translate(setting))
     candidates.append(rclone_managed_path(arch))
@@ -1201,7 +1113,7 @@ class RcloneBackend:
         return '%s:%s' % (remote, path) if path else '%s:' % remote
 
     def list_folder(self, remote, path=''):
-        cache_minutes = _setting_int('list_cache_minutes', 30, minimum=0, maximum=1440)
+        cache_minutes = setting_int('list_cache_minutes', 30, minimum=0, maximum=1440)
         cache_path = self._cache_path(remote, path)
         if cache_minutes > 0 and exists(cache_path):
             try:
@@ -1212,9 +1124,9 @@ class RcloneBackend:
             except Exception:
                 pass
         args = ['lsjson', self.remote_target(remote, path), '--no-mimetype']
-        if _setting_bool('skip_modtime', True):
+        if setting_bool('skip_modtime', True):
             args.append('--no-modtime')
-        out = self.run(args, timeout=_setting_int('list_timeout', 120, minimum=30, maximum=900))
+        out = self.run(args, timeout=setting_int('list_timeout', 120, minimum=30, maximum=900))
         try:
             raw_items = json.loads(out or '[]')
         except Exception as exc:
@@ -1256,7 +1168,7 @@ class RcloneBackend:
             'lsf', self.remote_target(remote, path), '--recursive', '--files-only',
             '--csv', '--format', 'pstio', '--time-format', 'RFC3339',
         ]
-        if _setting_bool('library_fast_list', False):
+        if setting_bool('library_fast_list', False):
             args.append('--fast-list')
         else:
             args.extend(['--disable', 'ListR'])
@@ -1297,7 +1209,7 @@ class RcloneBackend:
             finally:
                 enqueue(('end', sentinel))
 
-        timeout = _setting_int('library_scan_timeout', 900, minimum=60, maximum=7200)
+        timeout = setting_int('library_scan_timeout', 900, minimum=60, maximum=7200)
         if self._scan_low_impact:
             # Throttled provider calls need more wall-clock time, not more resources.
             timeout = min(7200, timeout * 2)
@@ -1487,7 +1399,7 @@ class RcloneBackend:
             pass
 
     def _port_for_remote(self, remote):
-        start = _setting_int('serve_port_start', 28980, minimum=1024, maximum=64000)
+        start = setting_int('serve_port_start', 28980, minimum=1024, maximum=64000)
         hashed = int(hashlib.sha1((self.conf_path + '\0' + remote).encode('utf-8', 'replace')).hexdigest()[:6], 16)
         return start + (hashed % 800)
 
@@ -1534,14 +1446,14 @@ class RcloneBackend:
         return '\n'.join(x for x in parts if x)
 
     def _serve_flags(self, addr, token, baseurl):
-        mode = (_setting_text('vfs_cache_mode', 'off') or 'off').strip().lower()
+        mode = (setting_text('vfs_cache_mode', 'off') or 'off').strip().lower()
         if mode not in ('off', 'minimal', 'writes', 'full'):
             mode = 'off'
-        cache_mb = _setting_int('vfs_cache_max_size_mb', 256, minimum=64, maximum=4096)
-        buffer_mb = _setting_int('buffer_size_mb', 8, minimum=0, maximum=128)
-        chunk_mb = _setting_int('read_chunk_size_mb', 16, minimum=1, maximum=256)
-        chunk_limit_mb = max(chunk_mb, _setting_int('read_chunk_limit_mb', 128, minimum=16, maximum=2048))
-        chunk_streams = _setting_int('read_chunk_streams', 0, minimum=0, maximum=16)
+        cache_mb = setting_int('vfs_cache_max_size_mb', 256, minimum=64, maximum=4096)
+        buffer_mb = setting_int('buffer_size_mb', 8, minimum=0, maximum=128)
+        chunk_mb = setting_int('read_chunk_size_mb', 16, minimum=1, maximum=256)
+        chunk_limit_mb = max(chunk_mb, setting_int('read_chunk_limit_mb', 128, minimum=16, maximum=2048))
+        chunk_streams = setting_int('read_chunk_streams', 0, minimum=0, maximum=16)
         flags = [
             '--read-only',
             '--addr', addr,
@@ -1565,7 +1477,7 @@ class RcloneBackend:
         ]
         if chunk_streams > 0:
             flags.extend(['--vfs-read-chunk-streams', str(chunk_streams)])
-        flags.extend(_validated_extra_serve_args(_setting_text('rclone_serve_extra_args', '')))
+        flags.extend(_validated_extra_serve_args(setting_text('rclone_serve_extra_args', '')))
         return flags
 
 
@@ -1597,13 +1509,13 @@ class RcloneBackend:
             'conf': conf_value,
             'binary': binary_value,
             'version': format_version(self._version_tuple),
-            'mode': _setting_text('vfs_cache_mode', 'off'),
-            'cache_mb': _setting_text('vfs_cache_max_size_mb', '256'),
-            'buffer_mb': _setting_text('buffer_size_mb', '8'),
-            'chunk_mb': _setting_text('read_chunk_size_mb', '16'),
-            'chunk_limit_mb': _setting_text('read_chunk_limit_mb', '128'),
-            'chunk_streams': _setting_text('read_chunk_streams', '0'),
-            'extra': _setting_text('rclone_serve_extra_args', ''),
+            'mode': setting_text('vfs_cache_mode', 'off'),
+            'cache_mb': setting_text('vfs_cache_max_size_mb', '256'),
+            'buffer_mb': setting_text('buffer_size_mb', '8'),
+            'chunk_mb': setting_text('read_chunk_size_mb', '16'),
+            'chunk_limit_mb': setting_text('read_chunk_limit_mb', '128'),
+            'chunk_streams': setting_text('read_chunk_streams', '0'),
+            'extra': setting_text('rclone_serve_extra_args', ''),
         }
         raw = json.dumps(profile, sort_keys=True, separators=(',', ':')).encode('utf-8')
         return hashlib.sha256(raw).hexdigest()
@@ -1641,7 +1553,7 @@ class RcloneBackend:
                 existing['last_used'] = time.time()
                 self._save_server_meta(remote, existing)
                 return existing
-        timeout = _setting_int('serve_start_timeout', 30, minimum=5, maximum=120)
+        timeout = setting_int('serve_start_timeout', 30, minimum=5, maximum=120)
         lock_path = self._acquire_server_start_lock(timeout + 5)
         try:
             # Another Kodi invocation may have completed startup while this one
@@ -1745,7 +1657,7 @@ class RcloneBackend:
         """Remove old unlimited-cache leftovers and enforce small hard caps."""
         removed = 0
         marker = os.path.join(self.profile, '.storage_policy_v4')
-        mode = (_setting_text('vfs_cache_mode', 'off') or 'off').strip().lower()
+        mode = (setting_text('vfs_cache_mode', 'off') or 'off').strip().lower()
         first_run_policy = not os.path.exists(marker)
         if aggressive or first_run_policy or mode == 'off':
             # This specifically clears multi-gigabyte data left by version 1.2.0.
@@ -1762,7 +1674,7 @@ class RcloneBackend:
             except Exception:
                 pass
         else:
-            cap_mb = _setting_int('vfs_cache_max_size_mb', 256, minimum=64, maximum=4096)
+            cap_mb = setting_int('vfs_cache_max_size_mb', 256, minimum=64, maximum=4096)
             removed += _cap_directory(self.rclone_cache_dir, cap_mb * 1024 * 1024, max_age_seconds=2 * 3600)
         # Folder listing JSON should remain tiny even on devices with very limited storage.
         removed += _cap_directory(self.cache_dir, 4 * 1024 * 1024, max_age_seconds=3 * 86400)
@@ -1803,10 +1715,10 @@ def diagnostic_text():
         'Managed path: %s' % rclone_managed_path(),
         'Kodi profile: %s' % addon_profile(),
         'Automatic download: permanently disabled',
-        'VFS cache mode: %s' % _setting_text('vfs_cache_mode', 'off'),
-        'ListR/fast-list: %s' % ('fast-list' if _setting_bool('library_fast_list', False) else 'low memory (--disable ListR)'),
+        'VFS cache mode: %s' % setting_text('vfs_cache_mode', 'off'),
+        'ListR/fast-list: %s' % ('fast-list' if setting_bool('library_fast_list', False) else 'low memory (--disable ListR)'),
         'Scan during playback: %s' % (
-            'enabled (1 CPU, 1 checker, 2 calls/s)' if _setting_bool('sync_during_playback', False)
+            'enabled (1 CPU, 1 checker, 2 calls/s)' if setting_bool('sync_during_playback', False)
             else 'disabled'
         ),
         'Servers: loopback + random base URL + identity header',

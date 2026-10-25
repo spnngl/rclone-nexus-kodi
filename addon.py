@@ -11,7 +11,6 @@ import xbmc
 import xbmcaddon
 import xbmcgui
 import xbmcplugin
-import xbmcvfs
 
 ADDON = xbmcaddon.Addon()
 ADDON_ID = ADDON.getAddonInfo('id') or 'plugin.ariostv'
@@ -26,6 +25,7 @@ from ariostv.rclone_backend import (
 )
 from ariostv import library_manager as library
 from ariostv.i18n import tr
+from ariostv.kodi import find_conf_path, setting_bool
 
 HANDLE = int(sys.argv[1])
 BASE_URL = sys.argv[0]
@@ -52,27 +52,6 @@ def get_param(key, default=''):
     return ARGS.get(key, [default])[0]
 
 
-def _translate(path):
-    try:
-        return xbmcvfs.translatePath(path)
-    except Exception:
-        return path
-
-
-def _exists(path):
-    try:
-        return bool(path) and (os.path.exists(path) or xbmcvfs.exists(path))
-    except Exception:
-        return bool(path) and os.path.exists(path)
-
-
-def _setting_bool(key, default=False):
-    value = ADDON.getSetting(key)
-    if value in (None, ''):
-        return bool(default)
-    return str(value).lower() in ('true', '1', 'yes', 'on', 'si', 'sí')
-
-
 def notify(message, heading=None, icon=xbmcgui.NOTIFICATION_INFO, milliseconds=4500):
     try:
         xbmcgui.Dialog().notification(heading or ADDON_NAME, message, icon, milliseconds)
@@ -80,28 +59,9 @@ def notify(message, heading=None, icon=xbmcgui.NOTIFICATION_INFO, milliseconds=4
         pass
 
 
-def get_conf_path():
-    candidates = []
-    setting_path = ADDON.getSetting('conf_path')
-    if setting_path:
-        candidates.append(_translate(setting_path))
-    candidates.extend([
-        _translate('special://masterprofile/rclone.conf'),
-        _translate('special://profile/rclone.conf'),
-        '/sdcard/Download/rclone.conf',
-        '/storage/emulated/0/Download/rclone.conf',
-        '/sdcard/Downloads/rclone.conf',
-        '/storage/emulated/0/Downloads/rclone.conf',
-    ])
-    for path in candidates:
-        if _exists(path):
-            return path
-    return setting_path or candidates[-1]
-
-
 def require_conf_path(show_dialog=True):
-    conf_path = get_conf_path()
-    if not _exists(conf_path):
+    conf_path = find_conf_path()
+    if not conf_path:
         if show_dialog:
             xbmcgui.Dialog().ok(ADDON_NAME, tr(30100))
         return ''
@@ -449,7 +409,7 @@ def export_folder_action(remote, path, name):
         result = library.sync_export(backend, entry, abort_callback=progress.iscanceled)
         progress.update(90, '%s\n%s' % (tr(30150), result['destination']))
         source_added = library.register_kodi_video_source(result['entry'])
-        if _setting_bool('auto_update_kodi_library', True):
+        if setting_bool('auto_update_kodi_library', True):
             library.request_library_update(result['destination'])
     except RcloneCancelled:
         if entry:
@@ -491,7 +451,7 @@ def sync_export_action(entry_id):
     try:
         result = library.sync_export(get_backend(), entry, abort_callback=progress.iscanceled)
         progress.update(100, tr(30157))
-        if _setting_bool('auto_update_kodi_library', True) and (result['added'] or result['removed'] or result['updated']):
+        if setting_bool('auto_update_kodi_library', True) and (result['added'] or result['removed'] or result['updated']):
             library.request_library_update(result['destination'])
         notify(tr(30158, added=result['added'], removed=result['removed'], total=result['total']))
     except RcloneCancelled:
@@ -554,7 +514,7 @@ def sync_all_action():
     if not canceled:
         progress.update(100, tr(30167))
     progress.close()
-    if _setting_bool('auto_update_kodi_library', True) and (totals['added'] or totals['removed']):
+    if setting_bool('auto_update_kodi_library', True) and (totals['added'] or totals['removed']):
         library.request_library_update()
     if canceled:
         summary = tr(30168, added=totals['added'], removed=totals['removed'], files=totals['files'], errors=totals['errors'])

@@ -6,7 +6,6 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 import re
-import sys
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
