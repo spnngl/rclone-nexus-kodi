@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.3.6
+## 1.4.0
 
 - The interface, settings, dialogs, notifications and error messages now follow the Kodi interface language instead of being hardcoded in Spanish.
 - Added English (`en_gb`, fallback) and Spanish (`es_es`) language catalogues under `resources/language/`, shared with the `en_au`, `en_nz`, `en_us`, `es_ar` and `es_mx` variants.

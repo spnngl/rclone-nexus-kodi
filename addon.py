@@ -1,4 +1,4 @@
-"""Rclone Nexus 1.3.6 - Kodi video addon for local rclone remotes."""
+"""Rclone Nexus - Kodi video addon for local rclone remotes."""
 
 import configparser
 import datetime

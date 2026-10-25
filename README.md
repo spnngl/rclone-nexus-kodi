@@ -18,20 +18,17 @@
 
 ## ✨ What is this?
 
-### Latest release: 1.3.5
+### Latest release: 1.4.0
 
-[Download plugin.ariostv-1.3.5.zip](https://github.com/warpirobo/rclone-nexus-kodi/releases/tag/plugin.ariostv-1.3.5)
+[Download plugin.ariostv-1.4.0.zip](../../releases/tag/plugin.ariostv-1.4.0)
 
-Version 1.3.5 adds optional low-impact remote scans during playback. This mode is
-disabled by default. When enabled, scan processes use one logical Go CPU, one
-checker, provider-call limits and periodic yields. Kodi's heavier library indexing
-and artwork processing are deferred until playback stops. Playback-server buffer
-and cache settings are unchanged. Disable this mode if you experience interruptions.
+Version 1.4.0 follows the Kodi interface language (English and Spanish included),
+targets Kodi 21 (Omega) or newer, and turns the rclone architecture and VFS cache
+mode settings into pick lists. See [CHANGELOG.md](CHANGELOG.md) for details.
 
-The provided base ZIP requires **rclone 1.75.0 or newer** and does not bundle the
-rclone executable. Configure/import a compatible local binary for the architecture
-of your Kodi application, not merely the physical CPU. The uploaded ZIP is the
-user-supplied 1.3.5 package; no device or functional tests were run for publication.
+The ZIP requires **rclone 1.75.0 or newer** and does not bundle the rclone
+executable. Configure/import a compatible local binary for the architecture of
+your Kodi application, not merely the physical CPU.
 
 **Rclone Nexus** is a Kodi video add-on that browses and streams content from `rclone` remotes — including `crypt`, `combine`, `union`, `alias`, and virtually any compatible cloud storage service. It can also generate incremental `.strm` libraries without downloading the media files to the device.
 
