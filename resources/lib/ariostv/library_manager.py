@@ -9,7 +9,6 @@ import json
 import os
 import re
 import shutil
-import threading
 import time
 import urllib.parse
 import xml.etree.ElementTree as ET
@@ -21,55 +20,7 @@ except Exception:
         pass
 
 from .i18n import tr
-
-try:
-    import xbmc
-    import xbmcaddon
-    import xbmcvfs
-except Exception:  # local tests
-    class xbmc:
-        LOGDEBUG = 0
-        LOGINFO = 1
-        LOGWARNING = 2
-        LOGERROR = 3
-        @staticmethod
-        def log(msg, level=0):
-            print(msg)
-        @staticmethod
-        def executebuiltin(command):
-            print(command)
-        @staticmethod
-        def executeJSONRPC(payload):
-            return '{}'
-        @staticmethod
-        def getCondVisibility(condition):
-            return False
-    class _Addon:
-        def getAddonInfo(self, key):
-            if key == 'profile':
-                return '/tmp/plugin.ariostv-profile/'
-            if key == 'id':
-                return 'plugin.ariostv'
-            return ''
-        def getSetting(self, key):
-            return ''
-    class xbmcaddon:
-        @staticmethod
-        def Addon():
-            return _Addon()
-    class xbmcvfs:
-        @staticmethod
-        def translatePath(path):
-            return path.replace('special://profile/', '/tmp/kodi-profile/')
-        @staticmethod
-        def mkdirs(path):
-            os.makedirs(path, exist_ok=True)
-        @staticmethod
-        def exists(path):
-            return os.path.exists(path)
-
-ADDON = xbmcaddon.Addon()
-ADDON_ID = ADDON.getAddonInfo('id') or 'plugin.ariostv'
+from .kodi import ADDON, ADDON_ID, mkdirs, setting_bool, setting_int, translate, xbmc
 VIDEO_EXTENSIONS = {
     '.mkv', '.mp4', '.avi', '.m4v', '.mov', '.ts', '.iso', '.m2ts', '.mpg',
     '.mpeg', '.wmv', '.flv', '.webm', '.vob', '.3gp', '.ogm', '.ogv'
@@ -83,22 +34,6 @@ LOCK_WAIT_SECONDS = 8
 
 class LibraryBusy(RuntimeError):
     """Raised when another Kodi process is already changing the same library."""
-
-
-def _setting_int(key, default, minimum=0, maximum=100000):
-    try:
-        value = int(ADDON.getSetting(key) or default)
-    except Exception:
-        value = default
-    return max(minimum, min(maximum, value))
-
-
-def _setting_bool(key, default=False):
-    value = ADDON.getSetting(key)
-    if value in (None, ''):
-        return bool(default)
-    return str(value).strip().lower() in ('true', '1', 'yes', 'on', 'si', 'sí')
-
 
 
 def _is_within(path, parent):
@@ -243,7 +178,7 @@ def free_space_bytes(path):
 
 
 def ensure_storage_reserve(path, extra_bytes=0):
-    reserve = _setting_int('storage_reserve_mb', 128, minimum=16, maximum=2048) * 1024 * 1024
+    reserve = setting_int('storage_reserve_mb', 128, minimum=16, maximum=2048) * 1024 * 1024
     available = free_space_bytes(path)
     required = reserve + max(0, int(extra_bytes or 0))
     if available is not None and available < required:
@@ -308,22 +243,6 @@ def _log(message, level=xbmc.LOGINFO):
         pass
 
 
-def translate(path):
-    try:
-        return xbmcvfs.translatePath(path)
-    except Exception:
-        return path
-
-
-def mkdirs(path):
-    if not path:
-        return
-    try:
-        xbmcvfs.mkdirs(path)
-    except Exception:
-        os.makedirs(path, exist_ok=True)
-
-
 def profile_dir():
     path = translate(ADDON.getAddonInfo('profile') or ('special://profile/addon_data/%s/' % ADDON_ID))
     mkdirs(path)
@@ -356,7 +275,7 @@ class _ExclusiveLock:
 
     def __enter__(self):
         deadline = time.monotonic() + self.wait_seconds
-        stale_after = max(3 * 3600, _setting_int('library_scan_timeout', 900, 60, 7200) + 600)
+        stale_after = max(3 * 3600, setting_int('library_scan_timeout', 900, 60, 7200) + 600)
         while True:
             try:
                 fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
@@ -610,7 +529,7 @@ def strm_relative_path(root_path, remote_file_path):
     parts = [sanitize_component(part) for part in relative.split('/') if part]
     if not parts:
         parts = ['video']
-    keep_extension = str(ADDON.getSetting('strm_keep_extension') or '').lower() in ('true', '1', 'yes', 'on')
+    keep_extension = setting_bool('strm_keep_extension')
     filename = parts[-1]
     if not keep_extension:
         filename = os.path.splitext(filename)[0]
@@ -699,7 +618,7 @@ def _sync_export_unlocked(backend, entry, delete_missing=None, abort_callback=No
     if not entry:
         raise ValueError(tr(30619))
     if delete_missing is None:
-        delete_missing = _setting_bool('library_delete_missing', True)
+        delete_missing = setting_bool('library_delete_missing', True)
 
     ensure_export_marker(entry, create_if_missing=True)
     manifest_file = manifest_path(entry)
@@ -849,7 +768,7 @@ def _sync_export_unlocked(backend, entry, delete_missing=None, abort_callback=No
         rollback_files()
         raise RcloneCancelled(tr(30622))
 
-    if old_files and not current and not _setting_bool('library_allow_empty_remote', False):
+    if old_files and not current and not setting_bool('library_allow_empty_remote', False):
         rollback_files()
         raise RuntimeError(tr(30623, count=len(old_files)))
 
@@ -1011,7 +930,7 @@ def _scan_new_content_unlocked(backend, remote, path='', abort_callback=None):
             pass
     if abort_callback and abort_callback():
         raise RcloneCancelled(tr(30622))
-    if old_files and not current and not _setting_bool('library_allow_empty_remote', False):
+    if old_files and not current and not setting_bool('library_allow_empty_remote', False):
         raise RuntimeError(tr(30625, count=len(old_files)))
     removed = sum(1 for item_path in old_files if item_path not in current)
     ensure_storage_reserve(state_path, extra_bytes=max(1024 * 1024, len(current) * 120))
@@ -1063,7 +982,7 @@ def get_recent_items():
     data = _load_json(recent_path(), {'items': []})
     days = 30
     try:
-        days = max(1, int(ADDON.getSetting('new_content_days') or 30))
+        days = setting_int('new_content_days', 30, minimum=1)
     except Exception:
         pass
     cutoff = int(time.time()) - days * 86400

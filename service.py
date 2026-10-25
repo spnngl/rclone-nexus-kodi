@@ -18,7 +18,6 @@ import time
 
 import xbmc
 import xbmcaddon
-import xbmcvfs
 
 ADDON = xbmcaddon.Addon()
 ADDON_DIR = ADDON.getAddonInfo('path')
@@ -27,48 +26,10 @@ sys.path.insert(0, os.path.join(ADDON_DIR, 'resources', 'lib'))
 from ariostv.rclone_backend import RcloneBackend, RcloneCancelled, cleanup_managed_servers  # noqa: E402
 from ariostv import library_manager as library  # noqa: E402
 from ariostv.i18n import tr  # noqa: E402
+from ariostv.kodi import find_conf_path, setting_bool, setting_int  # noqa: E402
 
 _NOTICE_PATH_RE = re.compile(r'(?:NOTICE|INFO|DEBUG)\s*:\s*("(?:\\.|[^"\\])*")\s*:\s*\d+\s*$')
 _DEBUG_PATH_RE = re.compile(r'changeNotify:\s*relativePath="([^"]*)"')
-
-
-def setting_bool(key, default=False):
-    value = ADDON.getSetting(key)
-    if value in (None, ''):
-        return bool(default)
-    return str(value).lower() in ('true', '1', 'yes', 'on', 'si', 'sí')
-
-
-def setting_int(key, default, minimum=1, maximum=10080):
-    try:
-        value = int(ADDON.getSetting(key) or default)
-    except Exception:
-        value = default
-    return max(minimum, min(maximum, value))
-
-
-def translate(path):
-    try:
-        return xbmcvfs.translatePath(path)
-    except Exception:
-        return path
-
-
-def conf_path():
-    configured = ADDON.getSetting('conf_path')
-    candidates = []
-    if configured:
-        candidates.append(translate(configured))
-    candidates.extend([
-        translate('special://masterprofile/rclone.conf'),
-        translate('special://profile/rclone.conf'),
-        '/sdcard/Download/rclone.conf',
-        '/storage/emulated/0/Download/rclone.conf',
-    ])
-    for path in candidates:
-        if path and os.path.exists(path):
-            return path
-    return ''
 
 
 def _normalize_remote_path(value):
@@ -357,7 +318,7 @@ class SmartSyncManager:
 
 
 def _backend_identity():
-    config = conf_path()
+    config = find_conf_path()
     if not config:
         return ('',)
     try:
@@ -458,7 +419,7 @@ def main():
                     except RcloneCancelled:
                         if monitor.abortRequested():
                             break
-                fallback_minutes = setting_int('auto_sync_interval_minutes', 180, minimum=30)
+                fallback_minutes = setting_int('auto_sync_interval_minutes', 180, minimum=30, maximum=10080)
                 next_fallback_at = time.time() + fallback_minutes * 60
             elif not setting_bool('auto_sync_enabled', False):
                 next_fallback_at = now
