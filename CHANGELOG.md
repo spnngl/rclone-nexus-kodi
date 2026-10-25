@@ -7,6 +7,7 @@
 - Fixed progress dialogs passing extra text lines, which Kodi 19 and later reject, when creating, syncing or searching libraries.
 - Kodi 21 (Omega) is now the target; Kodi 19 is no longer supported (`xbmc.python` 3.0.1). Titles are set through `InfoTagVideo` instead of the deprecated `ListItem.setInfo()`, which logged a warning for every listed item, and list items are created offscreen for faster listings.
 - Log messages and the diagnostic report are always in English.
+- The rclone architecture and VFS cache mode settings are now pick lists instead of free text, so a typo can no longer silently fall back to automatic detection or turn the VFS cache off.
 - `scripts/validate.py` checks that every string ID used in code and settings exists in every catalogue, that no ID is unused, and that translations keep the same placeholders.
 
 ## 1.3.5

@@ -37,7 +37,7 @@ msgid "Internal executable folder (optional)"
 msgstr ""
 
 msgctxt "#30006"
-msgid "Architecture: auto, armv7a, armv8a, x86, or x64"
+msgid "rclone architecture"
 msgstr ""
 
 msgctxt "#30007"
@@ -61,7 +61,7 @@ msgid "Playback and storage"
 msgstr ""
 
 msgctxt "#30012"
-msgid "VFS mode: off, minimal, writes, or full"
+msgid "VFS cache mode"
 msgstr ""
 
 msgctxt "#30013"

@@ -37,8 +37,8 @@ msgid "Internal executable folder (optional)"
 msgstr "Carpeta interna ejecutable (opcional)"
 
 msgctxt "#30006"
-msgid "Architecture: auto, armv7a, armv8a, x86, or x64"
-msgstr "Arquitectura: auto, armv7a, armv8a, x86 o x64"
+msgid "rclone architecture"
+msgstr "Arquitectura de rclone"
 
 msgctxt "#30007"
 msgid "Starting port for rclone serve"
@@ -61,8 +61,8 @@ msgid "Playback and storage"
 msgstr "Reproducción y espacio"
 
 msgctxt "#30012"
-msgid "VFS mode: off, minimal, writes, or full"
-msgstr "Modo VFS: off, minimal, writes o full"
+msgid "VFS cache mode"
+msgstr "Modo de caché VFS"
 
 msgctxt "#30013"
 msgid "Maximum VFS cache size (MB)"
