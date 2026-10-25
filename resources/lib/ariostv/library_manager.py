@@ -19,7 +19,7 @@ except Exception:
     class RcloneCancelled(RuntimeError):
         pass
 
-from .i18n import tr
+from .i18n import english, tr
 from .kodi import ADDON, ADDON_ID, mkdirs, setting_bool, setting_int, translate, xbmc
 VIDEO_EXTENSIONS = {
     '.mkv', '.mp4', '.avi', '.m4v', '.mov', '.ts', '.iso', '.m2ts', '.mpg',
@@ -310,7 +310,7 @@ class _ExclusiveLock:
             except FileNotFoundError:
                 pass
             except Exception as exc:
-                _log('Could not release lock %s: %s' % (self.path, exc), xbmc.LOGWARNING)
+                _log('Could not release lock %s: %s' % (self.path, english(exc)), xbmc.LOGWARNING)
         self.owned = False
 
 
@@ -835,14 +835,14 @@ def _sync_export_unlocked(backend, entry, delete_missing=None, abort_callback=No
             elif os.path.isfile(manifest_file) and not os.path.islink(manifest_file):
                 os.remove(manifest_file)
         except Exception as restore_exc:
-            _log('Could not restore the previous manifest: %s' % restore_exc, xbmc.LOGERROR)
+            _log('Could not restore the previous manifest: %s' % english(restore_exc), xbmc.LOGERROR)
         raise
 
     if added_recent and not first_sync:
         try:
             add_recent_items(entry['remote'], added_recent, entry_id=entry['id'])
         except Exception as exc:
-            _log('Could not update the new content list: %s' % exc, xbmc.LOGWARNING)
+            _log('Could not update the new content list: %s' % english(exc), xbmc.LOGWARNING)
 
     return {
         'entry': updated_entry,
@@ -1118,7 +1118,7 @@ def unregister_kodi_video_source(entry):
             _write_sources_tree(tree, sources_path)
         return removed
     except Exception as exc:
-        _log('Could not remove the Kodi source: %s' % exc, xbmc.LOGWARNING)
+        _log('Could not remove the Kodi source: %s' % english(exc), xbmc.LOGWARNING)
         return False
 
 
@@ -1164,7 +1164,7 @@ def request_library_update(path=''):
             queue_library_update(path)
         except Exception:
             pass
-        _log('Could not request UpdateLibrary: %s' % exc, xbmc.LOGWARNING)
+        _log('Could not request UpdateLibrary: %s' % english(exc), xbmc.LOGWARNING)
         return False
 
 

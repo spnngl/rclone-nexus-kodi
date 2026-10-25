@@ -24,7 +24,7 @@ from ariostv.rclone_backend import (
     cleanup_managed_servers, MIN_RCLONE_VERSION_TEXT,
 )
 from ariostv import library_manager as library
-from ariostv.i18n import tr
+from ariostv.i18n import english, tr
 from ariostv.kodi import find_conf_path, setting_bool
 
 HANDLE = int(sys.argv[1])
@@ -242,7 +242,7 @@ def show_folder(remote, path=''):
             return
         items = backend.list_folder(remote, path or '')
     except Exception as exc:
-        xbmc.log('[Rclone Nexus] Listing error: %s' % exc, xbmc.LOGERROR)
+        xbmc.log('[Rclone Nexus] Listing error: %s' % english(exc), xbmc.LOGERROR)
         xbmcgui.Dialog().ok(ADDON_NAME, tr(30115, error=exc))
         xbmcplugin.endOfDirectory(HANDLE, succeeded=False, cacheToDisc=False)
         return
@@ -291,7 +291,7 @@ def play_item(remote, path, name):
             return
         url = backend.playback_url(remote, path)
     except Exception as exc:
-        xbmc.log('[Rclone Nexus] Playback preparation error: %s' % exc, xbmc.LOGERROR)
+        xbmc.log('[Rclone Nexus] Playback preparation error: %s' % english(exc), xbmc.LOGERROR)
         xbmcgui.Dialog().ok(ADDON_NAME, tr(30117, error=exc))
         xbmcplugin.setResolvedUrl(HANDLE, False, xbmcgui.ListItem())
         return
@@ -411,7 +411,7 @@ def export_folder_action(remote, path, name):
             try:
                 library.remove_export(entry.get('id'), delete_files=True)
             except Exception as cleanup_exc:
-                xbmc.log('[Rclone Nexus] Could not roll back a cancelled export: %s' % cleanup_exc, xbmc.LOGWARNING)
+                xbmc.log('[Rclone Nexus] Could not roll back a cancelled export: %s' % english(cleanup_exc), xbmc.LOGWARNING)
         notify(tr(30151))
     except Exception as exc:
         if entry:
@@ -677,7 +677,7 @@ def cleanup_storage_action():
         removed += backend.cleanup_storage(aggressive=True)
         after = backend.storage_usage()
     except Exception as exc:
-        xbmc.log('[Rclone Nexus] Partial temporary cleanup: %s' % exc, xbmc.LOGWARNING)
+        xbmc.log('[Rclone Nexus] Partial temporary cleanup: %s' % english(exc), xbmc.LOGWARNING)
     try:
         removed += library.cleanup_library_storage()
         xbmcgui.Dialog().ok(
@@ -738,7 +738,7 @@ def diagnostic_action():
             library.format_bytes(library_usage['free']) if library_usage['free'] is not None else 'unknown',
         )
     except Exception as exc:
-        text += '\n\nCould not calculate library storage: %s' % exc
+        text += '\n\nCould not calculate library storage: %s' % english(exc)
     try:
         xbmcgui.Dialog().textviewer('%s · %s' % (ADDON_NAME, tr(30204)), text)
     except Exception:
