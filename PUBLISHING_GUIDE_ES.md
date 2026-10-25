@@ -45,11 +45,11 @@ El ZIP instalable debe contener una única carpeta superior llamada `plugin.ario
 
 ## 3. Publicar la primera versión
 
-El proyecto incluye un flujo de GitHub Actions que crea la Release automáticamente al enviar una etiqueta que empiece por `v`.
+El proyecto incluye un flujo de GitHub Actions que crea la Release automáticamente al enviar una etiqueta `plugin.ariostv-<versión>`; el flujo falla si la etiqueta no coincide con la versión de `addon.xml`.
 
 ```bash
-git tag v1.3.1
-git push origin v1.3.1
+git tag plugin.ariostv-1.3.1
+git push origin plugin.ariostv-1.3.1
 ```
 
 Después:
@@ -116,8 +116,8 @@ Ejemplo para `1.3.2`:
 git add .
 git commit -m "Release 1.3.2"
 git push
-git tag v1.3.2
-git push origin v1.3.2
+git tag plugin.ariostv-1.3.2
+git push origin plugin.ariostv-1.3.2
 ```
 
 ## 7. Sobre el binario rclone
