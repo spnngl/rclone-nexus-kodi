@@ -52,7 +52,7 @@ Built to run smoothly on **Amazon Fire Stick, Onn, Google TV**, and any Android 
 
 ## 📋 Requirements
 
-- Kodi 19 (Matrix) or newer, on Android or Fire OS
+- Kodi 21 (Omega) or newer, on Android or Fire OS
 - A working `rclone.conf` file
 - A compatible rclone binary (see section below)
 - Access to an already-configured rclone remote

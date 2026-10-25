@@ -181,21 +181,18 @@ def set_category(text):
         pass
 
 
-def add_folder(label, url, icon='DefaultFolder.png', context=None, info=None):
-    item = xbmcgui.ListItem(label)
+def add_folder(label, url, icon='DefaultFolder.png', context=None, title=None):
+    item = xbmcgui.ListItem(label, offscreen=True)
     item.setArt({'icon': icon, 'thumb': icon})
-    if info:
-        try:
-            item.setInfo('video', info)
-        except Exception:
-            pass
+    if title:
+        item.getVideoInfoTag().setTitle(title)
     if context:
         item.addContextMenuItems(context)
     xbmcplugin.addDirectoryItem(HANDLE, url, item, True)
 
 
 def add_action(label, action, icon='DefaultAddonProgram.png', context=None):
-    item = xbmcgui.ListItem(label)
+    item = xbmcgui.ListItem(label, offscreen=True)
     item.setArt({'icon': icon, 'thumb': icon})
     if context:
         item.addContextMenuItems(context)
@@ -205,15 +202,15 @@ def add_action(label, action, icon='DefaultAddonProgram.png', context=None):
 def add_video_item(remote, item, prefix=''):
     name = item.get('name') or os.path.basename(item.get('path', ''))
     label = prefix + name
-    li = xbmcgui.ListItem(label)
+    li = xbmcgui.ListItem(label, offscreen=True)
     li.setProperty('IsPlayable', 'true')
     li.setArt({'icon': 'DefaultVideo.png', 'thumb': 'DefaultVideo.png'})
-    info = {'title': name}
+    li.getVideoInfoTag().setTitle(name)
     size = int(item.get('size', 0) or 0)
-    if size:
-        info['size'] = size
     try:
-        li.setInfo('video', info)
+        if size:
+            # 'size' has no InfoTagVideo setter and is not deprecated in setInfo().
+            li.setInfo('video', {'size': size})
         li.setMimeType(guess_mime(name))
     except Exception:
         pass
@@ -307,7 +304,7 @@ def show_folder(remote, path=''):
                 build_url(action='browse', remote=remote, path=item_path),
                 'DefaultFolder.png',
                 context=folder_context(remote, item_path, name),
-                info={'title': name},
+                title=name,
             )
             added += 1
         elif is_video(name):
@@ -339,7 +336,7 @@ def play_item(remote, path, name):
         xbmcplugin.setResolvedUrl(HANDLE, False, xbmcgui.ListItem())
         return
 
-    li = xbmcgui.ListItem(path=url)
+    li = xbmcgui.ListItem(path=url, offscreen=True)
     try:
         li.setPath(url)
     except Exception:
@@ -348,7 +345,7 @@ def play_item(remote, path, name):
     try:
         li.setMimeType(guess_mime(name or path))
         li.setContentLookup(False)
-        li.setInfo('video', {'title': name or os.path.basename(path)})
+        li.getVideoInfoTag().setTitle(name or os.path.basename(path))
     except Exception:
         pass
     xbmc.log('[Rclone Nexus] Playing %s:%s via verified local server.' % (remote, path), xbmc.LOGINFO)
