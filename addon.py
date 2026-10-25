@@ -298,11 +298,6 @@ def play_item(remote, path, name):
 
     li = xbmcgui.ListItem(path=url, offscreen=True)
     try:
-        li.setPath(url)
-    except Exception:
-        pass
-    li.setProperty('IsPlayable', 'true')
-    try:
         li.setMimeType(guess_mime(name or path))
         li.setContentLookup(False)
         li.getVideoInfoTag().setTitle(name or os.path.basename(path))
