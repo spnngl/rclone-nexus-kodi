@@ -33,6 +33,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+from .i18n import tr
+
 try:
     import xbmc
     import xbmcaddon
@@ -75,7 +77,7 @@ except Exception:  # local syntax/tests outside Kodi
 ADDON = xbmcaddon.Addon()
 ADDON_ID = ADDON.getAddonInfo('id') or 'plugin.ariostv'
 ANDROID_API_LEVEL = 21
-ADDON_VERSION = '1.3.5'
+ADDON_VERSION = '1.3.6'
 MIN_RCLONE_VERSION = (1, 75, 0)
 MIN_RCLONE_VERSION_TEXT = '1.75.0'
 SERVER_IDENTITY_HEADER = 'X-Rclone-Nexus-Token'
@@ -205,7 +207,7 @@ def _verify_packaged_checksum(path):
         return True, ''
     actual = _file_sha256(path)
     if actual.lower() != str(expected).lower():
-        return False, 'SHA-256 inesperado: %s (esperado %s)' % (actual, expected)
+        return False, 'Unexpected SHA-256: %s (expected %s)' % (actual, expected)
     return True, actual
 
 
@@ -217,32 +219,32 @@ def _validated_extra_serve_args(value):
     try:
         tokens = shlex.split(value)
     except Exception as exc:
-        raise RcloneError('Argumentos avanzados invalidos: %s' % exc)
+        raise RcloneError(tr(30800, error=exc))
     result = []
     index = 0
     while index < len(tokens):
         token = tokens[index]
         if not token.startswith('--'):
-            raise RcloneError('Argumento avanzado no permitido: %s' % token)
+            raise RcloneError(tr(30801, argument=token))
         flag, equals, inline_value = token.partition('=')
         requires_value = _SAFE_EXTRA_SERVE_FLAGS.get(flag)
         if requires_value is None:
-            raise RcloneError('La opcion %s no esta permitida por seguridad.' % flag)
+            raise RcloneError(tr(30802, option=flag))
         result.append(flag)
         if requires_value:
             if equals:
                 if not inline_value:
-                    raise RcloneError('Falta valor para %s' % flag)
+                    raise RcloneError(tr(30803, option=flag))
                 result.append(inline_value)
             else:
                 index += 1
                 if index >= len(tokens) or tokens[index].startswith('--'):
-                    raise RcloneError('Falta valor para %s' % flag)
+                    raise RcloneError(tr(30803, option=flag))
                 result.append(tokens[index])
         elif equals:
             normalized = inline_value.strip().lower()
             if normalized not in ('true', '1', 'yes', 'on'):
-                raise RcloneError('%s solo admite true cuando se usa con =.' % flag)
+                raise RcloneError(tr(30804, option=flag))
         index += 1
     return result
 
@@ -471,7 +473,7 @@ def cleanup_managed_servers(max_idle_seconds=None, force=False):
                 alive = False
             else:
                 _report(
-                    'No se elimino el registro del PID %s porque no se pudo verificar como servidor propio.' % pid,
+                    'Did not remove the record for PID %s because it could not be verified as an owned server.' % pid,
                     xbmc.LOGWARNING,
                 )
                 continue
@@ -775,16 +777,16 @@ def _make_executable(path):
         mode = os.stat(path).st_mode
         os.chmod(path, mode | stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
     except Exception as exc:
-        _report('No se pudo aplicar chmod a %s: %s' % (path, exc), xbmc.LOGWARNING)
+        _report('Could not apply chmod to %s: %s' % (path, exc), xbmc.LOGWARNING)
 
 
 
 def _install_binary_from_file(src_path, gzipped=None):
     if not exists(src_path):
-        raise RuntimeError('No existe: %s' % src_path)
+        raise RuntimeError('Does not exist: %s' % src_path)
     checksum_ok, checksum_detail = _verify_packaged_checksum(src_path)
     if not checksum_ok:
-        raise RuntimeError('El binario integrado no supera la verificacion: %s' % checksum_detail)
+        raise RuntimeError('The bundled binary failed verification: %s' % checksum_detail)
     manifest_entry = _manifest_entry_for_path(src_path)
     expected_binary_hash = str((manifest_entry or {}).get('sha256_binary') or '').strip().lower()
     dest = rclone_managed_path()
@@ -792,7 +794,7 @@ def _install_binary_from_file(src_path, gzipped=None):
     mkdirs(os.path.dirname(dest))
     if gzipped is None:
         gzipped = src_path.endswith('.gz') or _looks_gzip(src_path)
-    _report('Copiando rclone local %s -> %s (gz=%s)' % (src_path, dest, gzipped), xbmc.LOGINFO)
+    _report('Copying local rclone %s -> %s (gz=%s)' % (src_path, dest, gzipped), xbmc.LOGINFO)
     try:
         if gzipped:
             with gzip.open(src_path, 'rb') as src, open(tmp, 'wb') as dst:
@@ -814,7 +816,7 @@ def _install_binary_from_file(src_path, gzipped=None):
         binary_hash = _file_sha256(tmp)
         if expected_binary_hash and binary_hash.lower() != expected_binary_hash:
             raise RuntimeError(
-                'El ejecutable descomprimido no supera SHA-256: %s (esperado %s)'
+                'The decompressed executable failed SHA-256 verification: %s (expected %s)'
                 % (binary_hash, expected_binary_hash)
             )
         os.replace(tmp, dest)
@@ -853,7 +855,7 @@ def _run_raw(args, timeout=30):
         except Exception:
             pass
         proc.communicate()
-        raise RuntimeError('timeout ejecutando %s' % args[0])
+        raise RuntimeError(tr(30805, command=args[0]))
     out_s = out.decode('utf-8', 'replace') if isinstance(out, bytes) else (out or '')
     err_s = err.decode('utf-8', 'replace') if isinstance(err, bytes) else (err or '')
     return proc.returncode, out_s, err_s
@@ -865,22 +867,20 @@ def _try_exec(path):
     expected_arch = detected_android_arch()
     elf_arch = _elf_arch(path)
     if _is_android_like() and elf_arch and elf_arch != expected_arch:
-        return False, 'Arquitectura ELF %s; Kodi necesita %s' % (elf_arch, expected_arch)
+        return False, tr(30806, elf_arch=elf_arch, expected_arch=expected_arch)
     code, out, err = _run_raw([path, 'version'], timeout=15)
     text = (out + '\n' + err).strip()
     if code != 0 or 'rclone' not in text.lower():
-        return False, text or ('codigo %s' % code)
+        return False, text or tr(30807, code=code)
     version = parse_rclone_version(text)
     if not version:
-        return False, 'No se pudo identificar la version de rclone.\n%s' % text
+        return False, tr(30808, output=text)
     if version < MIN_RCLONE_VERSION:
-        return False, 'rclone %s es demasiado antiguo; se requiere %s o superior.' % (
-            format_version(version), MIN_RCLONE_VERSION_TEXT
-        )
+        return False, tr(30809, version=format_version(version), minimum=MIN_RCLONE_VERSION_TEXT)
     _os_name, reported_arch = parse_rclone_os_arch(text)
     normalized = _rclone_arch_name(reported_arch)
     if _is_android_like() and normalized and normalized != expected_arch:
-        return False, 'rclone reporta arquitectura %s; Kodi necesita %s.' % (normalized, expected_arch)
+        return False, tr(30810, reported_arch=normalized, expected_arch=expected_arch)
     return True, text
 
 
@@ -935,11 +935,11 @@ def import_manual_rclone():
             path = _install_binary_from_file(src, gzipped=None)
             ok, text = _try_exec(path)
             if ok:
-                _report('rclone importado OK desde %s' % src, xbmc.LOGINFO)
+                _report('rclone imported successfully from %s' % src, xbmc.LOGINFO)
                 return path
-            _report('Importado pero no ejecuta: %s :: %s' % (src, text[:800]), xbmc.LOGWARNING)
+            _report('Imported but not executable: %s :: %s' % (src, text[:800]), xbmc.LOGWARNING)
         except Exception as exc:
-            _report('Importacion fallo %s: %s' % (src, exc), xbmc.LOGWARNING)
+            _report('Import failed for %s: %s' % (src, exc), xbmc.LOGWARNING)
     return ''
 
 
@@ -957,7 +957,7 @@ def find_rclone(allow_download=False):
     # allow_download is retained for API compatibility; network downloads are disabled.
     del _LAST_REPORT[:]
     props = android_props()
-    _report('Buscando rclone local >= %s. AndroidLike=%s arch=%s sdk=%s model=%s abi=%s abilist=%s paquete=%s' % (
+    _report('Searching for local rclone >= %s. AndroidLike=%s arch=%s sdk=%s model=%s abi=%s abilist=%s package=%s' % (
         MIN_RCLONE_VERSION_TEXT, _is_android_like(), detected_android_arch(), props.get('sdk'), props.get('model'),
         props.get('cpu_abi'), props.get('cpu_abilist'), android_package_name()
     ), xbmc.LOGINFO)
@@ -970,9 +970,9 @@ def find_rclone(allow_download=False):
             if ok:
                 _report('rclone OK: %s (%s)' % (run_path, detail.splitlines()[0]), xbmc.LOGINFO)
                 return run_path
-            _report('Candidato no valido: %s :: %s' % (run_path, detail[:1000]), xbmc.LOGWARNING)
+            _report('Invalid candidate: %s :: %s' % (run_path, detail[:1000]), xbmc.LOGWARNING)
         except Exception as exc:
-            _report('Candidato no ejecuta %s: %s' % (path, exc), xbmc.LOGWARNING)
+            _report('Candidate is not executable %s: %s' % (path, exc), xbmc.LOGWARNING)
     return ''
 
 
@@ -1068,12 +1068,9 @@ class RcloneBackend:
         self.rclone = find_rclone(allow_download=False)
         if not self.rclone:
             locations = '\n'.join('  - ' + x for x in embedded_binary_locations())
-            raise RcloneError(
-                'No se encontro un rclone %s o superior que sea ejecutable.\n\n%s\n\n'
-                'Configura la ruta del binario en Ajustes o incluyelo dentro del ZIP en una de estas rutas:\n%s' % (
-                    MIN_RCLONE_VERSION_TEXT, get_last_report(), locations
-                )
-            )
+            raise RcloneError(tr(
+                30811, minimum=MIN_RCLONE_VERSION_TEXT, report=get_last_report(), locations=locations
+            ))
         self.rclone = os.path.abspath(self.rclone)
         self._version_text = ''
         self._version_tuple = ()
@@ -1106,7 +1103,7 @@ class RcloneBackend:
         _report('run: %s' % ' '.join(cmd[:12] + (['...'] if len(cmd) > 12 else [])), xbmc.LOGDEBUG)
         code, out, err = _run_raw(cmd, timeout=timeout)
         if code != 0:
-            raise RcloneError((err or out or 'rclone salio con codigo %s' % code).strip())
+            raise RcloneError((err or out or tr(30812, code=code)).strip())
         return out
 
     def version(self):
@@ -1115,8 +1112,8 @@ class RcloneBackend:
             raise RcloneError((err or out).strip())
         value = (out or err).strip()
         if not rclone_version_supported(value):
-            found = format_version(parse_rclone_version(value)) or 'desconocida'
-            raise RcloneError('Version de rclone no compatible: %s; minimo %s.' % (found, MIN_RCLONE_VERSION_TEXT))
+            found = format_version(parse_rclone_version(value)) or 'unknown'
+            raise RcloneError('Unsupported rclone version: %s; minimum %s.' % (found, MIN_RCLONE_VERSION_TEXT))
         return value
 
 
@@ -1128,7 +1125,7 @@ class RcloneBackend:
         try:
             value = json.loads(out or '{}')
         except Exception as exc:
-            raise RcloneError('backend features devolvio JSON invalido: %s' % exc)
+            raise RcloneError('backend features returned invalid JSON: %s' % exc)
         return value if isinstance(value, dict) else {}
 
     def supports_change_notify(self, remote, path=''):
@@ -1136,7 +1133,7 @@ class RcloneBackend:
             features = self.backend_features(remote, path).get('Features') or {}
             return bool(features.get('ChangeNotify'))
         except Exception as exc:
-            _report('No se pudo consultar ChangeNotify para %s: %s' % (remote, exc), xbmc.LOGWARNING)
+            _report('Could not query ChangeNotify for %s: %s' % (remote, exc), xbmc.LOGWARNING)
             return False
 
     def change_notify_command(self, remote, poll_interval='5m'):
@@ -1221,7 +1218,7 @@ class RcloneBackend:
         try:
             raw_items = json.loads(out or '[]')
         except Exception as exc:
-            raise RcloneError('rclone lsjson devolvio JSON invalido: %s' % exc)
+            raise RcloneError(tr(30813, error=exc))
         items = []
         for item in raw_items:
             raw_path = item.get('Path') or item.get('Name') or ''
@@ -1240,7 +1237,7 @@ class RcloneBackend:
             try:
                 _atomic_json(cache_path, items)
             except Exception as exc:
-                _report('No se pudo escribir cache de listado: %s' % exc, xbmc.LOGWARNING)
+                _report('Could not write listing cache: %s' % exc, xbmc.LOGWARNING)
         return items
 
     def _stream_env(self, low_impact=False):
@@ -1267,7 +1264,7 @@ class RcloneBackend:
             # Metadata scans do not transfer video bytes. Limiting provider calls
             # and rclone workers is more useful than a bandwidth cap here.
             args.extend(['--checkers', '1', '--tpslimit', '2', '--tpslimit-burst', '1'])
-            _report('Escaneo durante reproduccion: perfil bajo impacto activo (1 CPU, 1 checker, 2 llamadas/s).', xbmc.LOGINFO)
+            _report('Scan during playback: low-impact profile active (1 CPU, 1 checker, 2 calls/s).', xbmc.LOGINFO)
         if video_only:
             args.append('--ignore-case')
             for extension in VIDEO_EXTENSIONS:
@@ -1323,9 +1320,9 @@ class RcloneBackend:
             while True:
                 if abort_callback and abort_callback():
                     cancelled = True
-                    raise RcloneCancelled('Operacion cancelada por el usuario.')
+                    raise RcloneCancelled(tr(30814))
                 if time.time() >= deadline:
-                    raise RcloneError('El escaneo recursivo excedio %d segundos.' % timeout)
+                    raise RcloneError(tr(30815, seconds=timeout))
                 try:
                     kind, value = events.get(timeout=0.25)
                 except queue.Empty:
@@ -1333,7 +1330,7 @@ class RcloneBackend:
                         break
                     continue
                 if kind == 'error':
-                    raise RcloneError('No se pudo leer la salida de rclone lsf: %s' % value)
+                    raise RcloneError(tr(30816, error=value))
                 if kind == 'end':
                     break
                 row = value
@@ -1369,9 +1366,9 @@ class RcloneBackend:
                 code = None
             completed = code == 0
             if code not in (0, None):
-                raise RcloneError(self._read_error_tail(error_path) or 'rclone lsf salio con codigo %s' % code)
+                raise RcloneError(self._read_error_tail(error_path) or tr(30817, code=code))
             if code is None:
-                raise RcloneError('rclone lsf no termino correctamente.')
+                raise RcloneError(tr(30818))
         finally:
             stop_event.set()
             if proc is not None and proc.poll() is None:
@@ -1400,7 +1397,7 @@ class RcloneBackend:
             except Exception:
                 pass
             if not completed and cancelled:
-                _report('Escaneo cancelado sin reemplazar el manifiesto.', xbmc.LOGINFO)
+                _report('Scan cancelled without replacing the manifest.', xbmc.LOGINFO)
 
 
     @staticmethod
@@ -1463,7 +1460,7 @@ class RcloneBackend:
                 return lock_path
             except OSError as exc:
                 if exc.errno != errno.EEXIST:
-                    raise RcloneError('No se pudo crear el bloqueo de arranque: %s' % exc)
+                    raise RcloneError(tr(30819, error=exc))
                 try:
                     age = time.time() - os.path.getmtime(lock_path)
                     lock_pid = 0
@@ -1479,7 +1476,7 @@ class RcloneBackend:
                 except Exception:
                     pass
                 time.sleep(0.15)
-        raise RcloneError('Otro proceso de Kodi esta iniciando un servidor rclone. Intenta de nuevo.')
+        raise RcloneError(tr(30820))
 
     @staticmethod
     def _release_server_start_lock(lock_path):
@@ -1678,7 +1675,7 @@ class RcloneBackend:
             stderr_path = os.path.join(self.pid_dir, sid + '.err.log')
             stdout = open(stdout_path, 'wb')
             stderr = open(stderr_path, 'wb')
-            _report('Iniciando rclone serve http para %s en loopback:%d' % (target, port), xbmc.LOGINFO)
+            _report('Starting rclone serve http for %s on loopback:%d' % (target, port), xbmc.LOGINFO)
             try:
                 proc = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, env=env, close_fds=True)
                 _OWNED_PROCESSES[proc.pid] = proc
@@ -1709,12 +1706,12 @@ class RcloneBackend:
                         os.remove(self._pid_file(remote))
                     except Exception:
                         pass
-                    raise RcloneError('rclone serve http termino al iniciar.\n%s' % self._server_logs_tail(remote))
+                    raise RcloneError(tr(30821, logs=self._server_logs_tail(remote)))
                 if _server_identity_matches(meta, timeout=0.8):
                     return meta
                 time.sleep(0.25)
             self._stop_server_meta(remote, meta)
-            raise RcloneError('rclone serve http no supero la verificacion local en %ds.\n%s' % (timeout, self._server_logs_tail(remote)))
+            raise RcloneError(tr(30822, seconds=timeout, logs=self._server_logs_tail(remote)))
         finally:
             self._release_server_start_lock(lock_path)
 
@@ -1774,7 +1771,7 @@ class RcloneBackend:
             if filename.endswith('.log'):
                 removed += _trim_file(os.path.join(self.pid_dir, filename), 64 * 1024)
         if removed:
-            _report('Limpieza de almacenamiento: %.1f MB liberados' % (removed / 1024.0 / 1024.0), xbmc.LOGINFO)
+            _report('Storage cleanup: %.1f MB freed' % (removed / 1024.0 / 1024.0), xbmc.LOGINFO)
         return removed
 
     def storage_usage(self):
@@ -1792,41 +1789,41 @@ class RcloneBackend:
 def diagnostic_text():
     props = android_props()
     lines = [
-        'Rclone Nexus %s - diagnostico' % ADDON_VERSION,
-        'rclone minimo: %s' % MIN_RCLONE_VERSION_TEXT,
+        'Rclone Nexus %s - diagnostics' % ADDON_VERSION,
+        'Minimum rclone: %s' % MIN_RCLONE_VERSION_TEXT,
         'Android-like: %s' % _is_android_like(),
-        'Paquete/proceso: %s' % (android_package_name() or '(no detectado)'),
-        'Arquitectura elegida: %s' % detected_android_arch(),
+        'Package/process: %s' % (android_package_name() or '(not detected)'),
+        'Selected architecture: %s' % detected_android_arch(),
         'SDK: %s' % props.get('sdk'),
         'Android/Fire OS: %s' % props.get('release'),
-        'Modelo: %s' % props.get('model'),
-        'ABI primaria: %s' % props.get('cpu_abi'),
-        'ABI lista: %s' % props.get('cpu_abilist'),
-        'Base ejecutable: %s' % executable_base_dir(),
-        'Ruta gestionada: %s' % rclone_managed_path(),
-        'Profile Kodi: %s' % addon_profile(),
-        'Descarga automatica: desactivada permanentemente',
-        'Modo cache VFS: %s' % _setting_text('vfs_cache_mode', 'off'),
-        'ListR/fast-list: %s' % ('fast-list' if _setting_bool('library_fast_list', False) else 'memoria baja (--disable ListR)'),
-        'Escaneo durante reproduccion: %s' % (
-            'activado (1 CPU, 1 checker, 2 llamadas/s)' if _setting_bool('sync_during_playback', False)
-            else 'desactivado'
+        'Model: %s' % props.get('model'),
+        'Primary ABI: %s' % props.get('cpu_abi'),
+        'ABI list: %s' % props.get('cpu_abilist'),
+        'Executable base: %s' % executable_base_dir(),
+        'Managed path: %s' % rclone_managed_path(),
+        'Kodi profile: %s' % addon_profile(),
+        'Automatic download: permanently disabled',
+        'VFS cache mode: %s' % _setting_text('vfs_cache_mode', 'off'),
+        'ListR/fast-list: %s' % ('fast-list' if _setting_bool('library_fast_list', False) else 'low memory (--disable ListR)'),
+        'Scan during playback: %s' % (
+            'enabled (1 CPU, 1 checker, 2 calls/s)' if _setting_bool('sync_during_playback', False)
+            else 'disabled'
         ),
-        'Servidores: loopback + base URL aleatoria + cabecera de identidad',
-        'Ubicaciones integradas aceptadas:',
+        'Servers: loopback + random base URL + identity header',
+        'Accepted bundled locations:',
     ]
     lines.extend('  - ' + item for item in embedded_binary_locations())
-    lines.append('Candidatos locales existentes:')
+    lines.append('Existing local candidates:')
     found = False
     for candidate in _candidate_paths() + _manual_import_candidates():
         if exists(candidate):
             lines.append('  - %s' % candidate)
             found = True
     if not found:
-        lines.append('  - ninguno')
+        lines.append('  - none')
     server_files = [name for name in os.listdir(managed_server_dir()) if name.endswith('.json')] if os.path.isdir(managed_server_dir()) else []
-    lines.append('Servidores registrados: %d' % len(server_files))
+    lines.append('Registered servers: %d' % len(server_files))
     if _LAST_REPORT:
-        lines.append('\nUltimo reporte:')
+        lines.append('\nLast report:')
         lines.append(get_last_report())
     return '\n'.join(lines)

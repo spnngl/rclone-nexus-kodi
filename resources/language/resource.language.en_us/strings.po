@@ -1,0 +1,1 @@
+../resource.language.en_gb/strings.po
